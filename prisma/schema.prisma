@@ -1,0 +1,117 @@
+// Research-bot schema. Single-file SQLite DB at prisma/dev.db.
+// Pipeline: RawPost -> Signal (+ embedding) -> Opportunity (via Evidence) -> score.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Platforms we ingest from (reddit, hn, producthunt, ih, g2).
+model Source {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  config    String?   // JSON blob (stringified). Per-source settings (subreddit list, etc.)
+  createdAt DateTime  @default(now())
+  posts     RawPost[]
+}
+
+/// A single post / comment / review fetched from a source. Idempotent on (sourceId, externalId).
+model RawPost {
+  id         String   @id @default(cuid())
+  sourceId   String
+  externalId String
+  url        String
+  author     String?
+  postedAt   DateTime?
+  title      String?
+  body       String
+  rawJson     String?  // original JSON payload for debugging
+  fetchedAt   DateTime @default(now())
+  /// Set once the signals stage has evaluated this post (whether it emitted
+  /// signals or not). Null = never seen by Claude. Distinguishes "Claude said
+  /// no signal" from "not yet processed" so we don't burn calls re-evaluating
+  /// the same post on every pipeline run.
+  processedAt DateTime?
+  source      Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  signals     Signal[]
+
+  @@unique([sourceId, externalId])
+  @@index([fetchedAt])
+  @@index([processedAt])
+}
+
+/// A structured pain-point / wish / complaint extracted from a RawPost.
+/// One RawPost can yield zero or many signals.
+model Signal {
+  id         String    @id @default(cuid())
+  rawPostId  String
+  kind       String    // "pain" | "wish" | "complaint" | "current_spend" | "workflow"
+  summary    String    // <=200 chars canonical statement
+  nicheTags  String    // comma-joined tags (SQLite has no array type)
+  embedding  Bytes?    // Float32Array serialized (768-dim, nomic-embed-text)
+  createdAt  DateTime  @default(now())
+  rawPost    RawPost   @relation(fields: [rawPostId], references: [id], onDelete: Cascade)
+  evidence   Evidence[]
+
+  @@index([rawPostId])
+  @@index([createdAt])
+}
+
+/// A candidate SaaS opportunity. Clustered from multiple signals via Evidence.
+model Opportunity {
+  id                String   @id @default(cuid())
+  title             String
+  oneLiner          String
+  niche             String?
+  status            String   @default("candidate") // candidate | promoted | dismissed | snoozed
+  score             Float    @default(0)
+  soloDevScore      Float    @default(0) // 0-10, higher = easier for one person
+  demandScore       Float    @default(0) // 0-10, signal count + intensity
+  monetizationScore Float    @default(0) // 0-10, willingness to pay evidence
+  competitionScore  Float    @default(0) // 0-10, higher = MORE competition (penalty)
+  estMrrCeiling     Int?     // estimated $/mo ceiling for a solo dev
+  estCacBand        String?  // "low" | "medium" | "high" | null
+  notes             String?  // markdown notes from research agent
+  centroid          Bytes?   // average embedding of member signals
+  researchedAt      DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  evidence          Evidence[]
+
+  @@index([status, score])
+  @@index([niche])
+}
+
+/// Many-to-many link between Opportunity and Signal, with a per-link weight.
+model Evidence {
+  id            String      @id @default(cuid())
+  opportunityId String
+  signalId      String
+  weight        Float       @default(1.0)
+  createdAt     DateTime    @default(now())
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  signal        Signal      @relation(fields: [signalId], references: [id], onDelete: Cascade)
+
+  @@unique([opportunityId, signalId])
+  @@index([signalId])
+}
+
+/// Async job queue. Pipeline stages write here for observability; the dashboard shows counts.
+model Job {
+  id          String    @id @default(cuid())
+  kind        String    // "ingest" | "signals" | "embed" | "cluster" | "research"
+  payload     String?   // JSON blob
+  status      String    @default("pending") // pending | running | done | failed
+  attempts    Int       @default(0)
+  lastError   String?
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+
+  @@index([kind, status])
+  @@index([createdAt])
+}
