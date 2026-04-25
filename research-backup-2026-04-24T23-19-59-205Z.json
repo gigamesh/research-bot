@@ -1,0 +1,791 @@
+{
+  "exportedAt": "2026-04-24T23:19:59.204Z",
+  "version": 1,
+  "reason": "pipeline:embed --reset (embedding model or clusters invalidated)",
+  "opportunities": [
+    {
+      "id": "cmod8zbno001wxwpgjhqdxtxy",
+      "title": "AI Document Pre-Processor for Tax OCR Import (Lacerte/UltraTax)",
+      "oneLiner": "Clean and normalize client source documents before OCR scanning into Lacerte or similar tax software to reduce manual correction time.",
+      "niche": "tax-preparer",
+      "status": "candidate",
+      "score": 1.1499999999999995,
+      "soloDevScore": 4.5,
+      "demandScore": 2.5,
+      "monetizationScore": 5.5,
+      "competitionScore": 7.5,
+      "estMrrCeiling": 6000,
+      "estCacBand": "medium",
+      "notes": "**The problem**: Tax preparers at high-volume 1040 shops spend meaningful time manually cleaning client documents (crooked scans, poor contrast, handwritten annotations, mixed-quality PDFs) before running them through Lacerte's built-in OCR importer. Bad source docs → bad OCR → manual correction → wasted time. The dream is an AI pre-flight step that deskews, denoises, crops, and normalizes before the scan-and-import step.\n\n**Target user**: Bookkeepers and preparers at 200–2000 return/year CPA firms, especially those heavily invested in Lacerte or UltraTax who want to squeeze more throughput from existing workflows without changing software.\n\n**What you'd build**: A web or desktop tool that accepts PDF/image uploads, runs preprocessing (deskew, denoise, contrast normalization, possibly document type detection), then outputs a cleaned PDF ready for the existing OCR workflow. No need to replace Lacerte — just slot in before it.\n\n**Strongest signals**: Tax pros are actively spending on adjacent tools ($1,200/seat/year for TaxGPT; CPA Pilot at $29/mo; 1040SCAN as a category). The pain is real — document quality is a known bottleneck. The ask is concrete and scoped.\n\n**Weakest signals**: Only 2 signals, both from a single Reddit thread — no corroboration across communities, no direct \"I'd pay $X for this\" quotes. Critically, Lacerte's own importer already has dual OCR readers and a form reviewer; Intuit may be solving this natively. The preprocessing-only angle is also a thin wedge: users may expect a full intake-to-import pipeline, not just a cleaning step.\n\n**Top competitors**: (1) **Black Ore** — enterprise AI-native platform that delivers data directly into tax software, minimal CPA intervention, pricing undisclosed but clearly enterprise-tier. (2) **Juno** — just raised a $12M seed (April 2026) to automate 90% of data entry across 92+ document types; direct competitor at scale. (3) **1040SCAN / Lido / OCRTax.com** — dedicated tax OCR tools that already export Lacerte-compatible formats and handle document normalization as part of their pipeline.\n\n**Verdict — Pass**. The pain is real but the signal is extremely thin (single thread), and the competitive landscape just got materially worse with Juno's April 2026 $12M raise targeting exactly this workflow. Lacerte has native OCR features that Intuit will continue improving. A solo dev building preprocessing-only would be outflanked on both sides — incumbents from below (Lacerte native) and well-funded startups from above (Juno, Black Ore). The defensible surface area is too small to reach $15k/mo before a better-resourced competitor closes the gap.",
+      "researchedAt": "2026-04-24T18:33:34.384Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Tax pros want AI to scrub/clean source documents before OCR scanning into tax software to improve import accuracy for simple 1040s."
+        },
+        {
+          "kind": "workflow",
+          "summary": "Manual prep and cleanup of tax documents before scanning/importing into Lacerte is a bottleneck for high-volume 1040 practices seeking efficiency gains."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbp00057xwpgpuvymdf3",
+      "title": "Homemade Chili Paste / Condiment Preservation Tracker",
+      "oneLiner": "A SaaS or app helping home cooks track and optimize preservation conditions for homemade condiments like chili paste.",
+      "niche": "home-fermenters",
+      "status": "candidate",
+      "score": 0.09999999999999964,
+      "soloDevScore": 6,
+      "demandScore": 1,
+      "monetizationScore": 1,
+      "competitionScore": 6,
+      "estMrrCeiling": 1500,
+      "estCacBand": "low",
+      "notes": "**The problem**: Capsaicin in homemade chili paste degrades via oxidation, enzyme activity, and heat exposure — users notice their paste losing punch within days or weeks. The underlying issue is purely food science: storage temperature, light exposure, pH, and packaging material all affect capsaicinoid retention. There is no intrinsic software hook; the answer is \"store in an airtight container, refrigerate, and add acid.\"\n\n**Target user**: Home cooks / fermentation hobbyists who make condiments from scratch. This is a niche within a niche — chili paste specifically is narrower than the already-thin home fermentation enthusiast segment.\n\n**What you'd actually build**: The closest viable product would be a fermentation/condiment-tracking app (log batches, track storage conditions, set expiration reminders, surface preservation tips). But this is already a solved space: FermentFlow, Fermenta, HakkoBako, FermentApp, and Brewfather all exist, most are free or under $5/mo.\n\n**Strongest signal**: None. Both signals come from a single Reddit thread — one person asking a question. There is zero repeat demand evidence, zero willingness-to-pay, and no indication this person would pay for software.\n\n**Weakest signal**: Everything. The pain is physical (chemistry), not digital. Software cannot directly preserve spiciness. Any app would be a tangential solution that competes with a free Google search or a $10 food preservation book.\n\n**Top competitors**: Fermenta (free tier, ~$4/mo pro), FermentFlow (App Store, freemium), HakkoBako (free app). None appear to have strong revenue — no public MRR, no paid tiers above ~$5/mo visible.\n\n**Verdict**: Pass. One Reddit post is not a market. The underlying problem is solved by food science knowledge, not software. The closest adjacent market (fermentation tracking apps) is crowded with free tools and shows no meaningful monetization. Do not invest further.",
+      "researchedAt": "2026-04-24T18:34:21.393Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Homemade chili paste loses spiciness over time, affecting taste and usability."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish to preserve homemade chili paste's spiciness for a week or more without altering taste."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbp1005axwpgsdktur6i",
+      "title": "Sous Vide Recipe Troubleshooter / Precision Cooking Assistant",
+      "oneLiner": "An AI-powered tool that diagnoses why a sous vide recipe failed and gives corrected parameters.",
+      "niche": "home-cooking",
+      "status": "candidate",
+      "score": 1.1249999999999996,
+      "soloDevScore": 5,
+      "demandScore": 1.5,
+      "monetizationScore": 2,
+      "competitionScore": 4,
+      "estMrrCeiling": 1500,
+      "estCacBand": "high",
+      "notes": "**The problem:** A single Reddit user in r/AskCulinary can't reproduce their sous vide hollandaise. That's the entirety of the signal cluster — one post, one user, one very specific recipe problem.\n\n**Target user:** Home cooks who own sous vide equipment (~5M units sold in the US) and encounter inconsistent results. This is a real frustration, but it's solved today by free resources: ChefSteps, Serious Eats, r/sousvide, and the Anova app (free tier + $9.99/yr premium).\n\n**What you'd build:** A recipe troubleshooter that takes inputs (temp, time, equipment, result) and suggests corrections — essentially a chatbot wrapper over cooking science. Alternatively a structured recipe database with version tracking. Neither is technically hard, but neither commands real WTP from home cooks.\n\n**Weakest signals:** This is one person with one problem. No willingness-to-pay signal anywhere in the cluster. Home cooks are conditioned by free apps (Anova, Joule/ChefSteps) and Reddit communities to expect free help. The market ceiling is tiny — even the most popular sous vide app (Anova) charges only $9.99/yr, implying massive resistance to paying.\n\n**Competitors:** Anova Culinary app ($1.99/mo or $9.99/yr), Joule/ChefSteps (free with device), sousvidetools.com iVide (free). All are hardware-bundled or free, making standalone SaaS nearly impossible to justify at meaningful price points.\n\n**Verdict: Pass.** Single-source signal, zero WTP evidence, a crowded free-tool ecosystem, and a consumer audience that won't pay. MRR ceiling is sub-$2k even in an optimistic scenario. This does not meet the $15k/mo target.",
+      "researchedAt": "2026-04-24T18:34:53.115Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Struggling to recreate successful sous vide hollandaise recipe due to inconsistent results."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for advice on troubleshooting a sous vide hollandaise recipe that no longer works as expected."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbq3007vxwpgtsjfj3kh",
+      "title": "Chiropractic Marketing Agency Vetting / Comparison Tool",
+      "oneLiner": "A niche directory or matchmaker that helps chiropractors evaluate and choose marketing agencies.",
+      "niche": "chiropractors",
+      "status": "candidate",
+      "score": 1.1499999999999995,
+      "soloDevScore": 6,
+      "demandScore": 2,
+      "monetizationScore": 3,
+      "competitionScore": 6,
+      "estMrrCeiling": 3000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** Chiropractors are overwhelmed by the number of marketing agencies claiming to specialize in their niche and don't know how to vet them. They turn to peer communities (Reddit, Facebook groups) for recommendations because they can't trust agency self-promotion.\n\n**Target user:** Solo or small-group practice owners (1–3 DCs) actively trying to grow patient volume, spending or considering spending $500–$3k/mo on marketing. They are not technically savvy and are easy marks for bad agencies.\n\n**What you'd build:** Most likely a lead-gen directory or matchmaker — chiropractors answer a short quiz (budget, location, goals), get matched to 2–3 vetted agencies, agencies pay a referral fee. Alternatively a review-aggregation site specific to chiro marketing agencies. Neither is really SaaS; both are content/SEO plays with a lead-gen monetization model.\n\n**Signal quality — weakest possible:** Both signals trace back to a single Reddit post. There is no second independent source, no price mentioned, no explicit willingness-to-pay for a vetting tool. This could be one chiropractor's curiosity, not a repeating pain point. Demand score reflects this severely.\n\n**Existing competition:** The chiro marketing SaaS space is crowded — ChiroMatrix (iMatrix, ~$99+/mo), Marketing 360, Perfect Patients, Demandforce, BoomCloud, The Leading Practice all serve this niche with full marketing stacks. Agencies themselves are numerous. A comparison/directory layer exists generically (G2, Clutch, UpCity) but not chiro-specific — that gap is real but tiny.\n\n**Verdict: Pass.** One Reddit thread is not a validated pain point. The monetization path (lead-gen directory) has very low MRR ceiling and requires building an audience before generating revenue. The underlying need — help choosing a vendor — is already partially served by generic review sites. Revisit only if you find 10+ independent posts with explicit budget signals across multiple communities.",
+      "researchedAt": "2026-04-24T18:35:43.833Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Uncertainty about choosing an effective chiropractic marketing agency."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for recommendations on reliable chiropractic marketing agencies."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbrp00c2xwpgbazfob78",
+      "title": "State-Specific Eviction Guidance Tool for Small/New Property Managers",
+      "oneLiner": "Step-by-step eviction notice generator with state-law compliance checks for landlords and new PMs who are unsure of correct procedure.",
+      "niche": "property-management",
+      "status": "candidate",
+      "score": 0.9999999999999996,
+      "soloDevScore": 4.5,
+      "demandScore": 2.5,
+      "monetizationScore": 4.5,
+      "competitionScore": 7,
+      "estMrrCeiling": 6000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** New or small property managers—especially those inheriting bad-advice situations—don't know the exact steps, timing windows, or forms required to legally begin an eviction in their state. The pain is real (wrong timing or wrong notice type can restart the clock, costing weeks), but the Reddit posts in this cluster are asking for *community advice*, not for a tool.\n\n**Target user:** Independent landlords managing 1–10 units, or first-year PMs handling a handful of properties. They're not using enterprise PM software and are confused by jurisdiction-specific rules.\n\n**What you'd build:** A wizard that takes state + lease type + violation type and outputs: correct notice form, required waiting periods, next steps, and a filing checklist. AI-assist for edge cases. Document generation as a PDF download.\n\n**Weakest signals:** Only 2 posts in the cluster, and both are resolved by free community advice—no one in the posts mentions looking for software or willingness to pay. This is a two-signal cluster where users reach for Reddit, not Google for a SaaS tool.\n\n**Strongest signals:** General eviction-guidance demand is real (high search volume for state-specific eviction laws), and the legal-mistake cost is high enough that users *should* pay—but they often reach for free resources first (Nolo, state bar guides, Reddit).\n\n**Top competitors with pricing:** (1) **EvictIQ** — AI-powered, state-compliant notices + case tracking, pricing not publicly listed but targets PM companies. (2) **EasyEviction** — notice generation + court forms, targets landlords and attorneys, pricing unclear but free tier exists. (3) **Eviction Assistant** (Rent Manager add-on) — integrated into existing PM software, not standalone. The market has multiple dedicated players already serving this exact pain point.\n\n**Verdict: Pass.** The cluster is far too thin (2 posts) to validate demand, and the competition is already well-established with AI-powered dedicated tools. The bigger problem: legal-accuracy maintenance across 50 states is an ongoing operational burden for a solo dev, not a one-time build. Even if you shipped, differentiating from EvictIQ and EasyEviction would require significant marketing spend (medium CAC band) against incumbents with head starts. The MRR ceiling is low given the niche depth and free-advice substitutes.",
+      "researchedAt": "2026-04-24T18:36:30.553Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Uncertainty about issuing eviction notices due to conflicting advice from previous management and owner, leading to stress in decision-making."
+        },
+        {
+          "kind": "pain",
+          "summary": "Uncertainty about correct eviction procedures leads to stress and potential legal issues."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbsf00dtxwpgvce58ipf",
+      "title": "Credit Card → Contractor Payment Bridge for Real Estate Investors",
+      "oneLiner": "A niche B2B payment tool letting real estate investors charge rehab costs to their business credit cards and pay contractors via check/ACH.",
+      "niche": "real-estate-investors",
+      "status": "candidate",
+      "score": 0.19999999999999973,
+      "soloDevScore": 2,
+      "demandScore": 3,
+      "monetizationScore": 5,
+      "competitionScore": 8,
+      "estMrrCeiling": 4000,
+      "estCacBand": "high",
+      "notes": "**The problem:** Visa/Mastercard network rules prohibit many card issuers from processing payments to individual contractors or unregistered vendors. Real estate investors want to charge 5-figure rehab bills to 0%-APR or rewards cards but can't pay their GC directly with plastic.\n\n**Target user:** Active house-flippers or BRRRR investors running $30k–$200k renovations who want to arbitrage sign-up bonuses or delay cash outflow via 0% intro APR windows.\n\n**What you'd build:** A payment intermediary: user enters contractor info, charges their card 2.9% fee, platform disburses check or ACH to the contractor. Essentially Plastiq or Melio with a real-estate-investor marketing skin.\n\n**Strongest signal:** The workaround is real and well-understood — services like Plastiq and Melio already exist and are recommended in the Reddit thread. That validates the pain. Willingness to pay the 2.9% fee is implied by the fact that users are already paying it elsewhere.\n\n**Weakest signal:** Only two signals in the cluster, both from a single Reddit thread. No evidence of unmet demand — the workaround (Melio, Plastiq, Zil Money, Corpay) is mature and well-known. The problem is solved, just not marketed to this audience.\n\n**Top competitors:** (1) **Melio** — free ACH, 2.9% credit card fee, includes 1099/W-9 workflows; heavily used by small businesses already. (2) **Plastiq** — same 2.9% model, broad vendor support, no tax tools. (3) **Zil Money** — similar credit-card-to-ACH/check product. All three are established, well-funded, and already used by the exact audience described.\n\n**Verdict: Pass.** This is not a gap — it's a marketing problem Melio already owns. A solo dev cannot build a payments intermediary: you need money-transmitter licenses (state-by-state, multi-year process), banking partnerships, and compliance infrastructure. Even if you white-labeled the rails, you'd be reselling at a margin that can't sustain $15k/mo. The niche-marketing angle (\"Melio but for flippers\") has no defensible moat.",
+      "researchedAt": "2026-04-24T18:45:06.895Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Inability to use business cards for contractor payments due to Visa restrictions."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish there was a workaround or tool to facilitate business card payments to contractors."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbsh00dwxwpgz36lc0gm",
+      "title": "Buyer-Side Home Inspection Report Analyzer & Repair Negotiation Tool",
+      "oneLiner": "AI tool that parses a home inspection PDF, prioritizes findings by severity, estimates repair costs, and drafts a repair request addendum for the buyer.",
+      "niche": "home-buyers",
+      "status": "candidate",
+      "score": 2.55,
+      "soloDevScore": 7,
+      "demandScore": 3,
+      "monetizationScore": 4,
+      "competitionScore": 5,
+      "estMrrCeiling": 6000,
+      "estCacBand": "medium",
+      "notes": "**The Problem**\nHome buyers receive a 40–80 page inspection report full of jargon and don't know which findings are safety-critical vs. cosmetic, what repairs should cost, or how to frame a repair request without either over-asking (killing the deal) or leaving money on the table. Buyer's agents often provide rough guidance, but rarely have time for line-by-line coaching.\n\n**What You'd Build**\nA PDF upload → AI pipeline that (1) classifies findings into safety/structural/cosmetic buckets, (2) appends national-average cost estimates per line item, (3) flags which items sellers typically concede vs. resist, and (4) outputs a formatted repair addendum. Possible upsell: a short negotiation strategy memo. Stack: Next.js + a PDF parser (pdf-parse or similar) + a Claude/GPT call + Stripe for per-report payment.\n\n**Signal Quality — the weak spot**\nOnly 2 signals are cited, and both appear to be the same post title posted to two different subreddits on the same day — likely the same user cross-posting, or a scraper artifact. That makes the \"cluster\" effectively a single data point. The underlying pain is real and well-known in real estate communities, but this specific cluster provides almost no independent validation.\n\n**Competition**\nExisting tools (HomeGauge's Create Request List™, Spectora, ScribeWare) are all **inspector-facing** — built to help inspectors write better reports, not help buyers interpret them. That gap is real. However, the big competitive threat isn't a SaaS rival: it's ChatGPT/Claude with a PDF upload, which already does this adequately for free. Any paid product needs a meaningfully better output (agent-ready addendum template, cost data, local contractor referrals) to justify the fee.\n\n**Revenue Model Risk**\nHome purchases happen roughly every 7 years per person. This is inherently a one-time-use product per transaction, so per-report pricing ($25–49/report) is the only natural model. That makes LTV very low (~$35) and pushes CAC to be near zero — meaning organic SEO or agent referral partnerships are essentially required. Selling to buyer's agents or brokerages as a value-add tool is a plausible B2B angle but needs a sales motion. $6k MRR would require ~170 reports/month at $35, consistently — achievable but not easy without a distribution channel.\n\n**Verdict: Pass (for now).** The signal cluster is too thin (effectively one cross-post) to justify building. The underlying pain is real, but the AI commoditization risk is severe and the one-time-use revenue model caps LTV. Worth revisiting if you find 10+ independent posts with explicit \"I wish there were a tool for this\" language, or a B2B angle (e.g., a brokerage willing to pay per-seat to offer this to all their buyer clients).",
+      "researchedAt": "2026-04-24T18:46:13.228Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Uncertainty over inspection findings leads to difficulty in negotiating repairs with seller."
+        },
+        {
+          "kind": "pain",
+          "summary": "Uncertainty over inspection findings leads to difficulty in negotiating repairs with the seller."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbsi00dyxwpgcfcynse6",
+      "title": "On-Demand Expert Triage for Unexpected Property Inspection Findings",
+      "oneLiner": "A platform connecting home buyers and real estate investors with vetted structural/mechanical experts for rapid second opinions on inspection surprises.",
+      "niche": "real-estate-buyers",
+      "status": "candidate",
+      "score": 2.724999999999999,
+      "soloDevScore": 4.5,
+      "demandScore": 3.5,
+      "monetizationScore": 5,
+      "competitionScore": 4,
+      "estMrrCeiling": 8000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** When a home inspection surfaces a major structural crack, foundation issue, or mystery moisture, buyers face a high-stakes decision with no fast path to a trusted second opinion. They have 3–10 days to negotiate or walk. Reddit threads show genuine panic and a pattern of crowdsourcing advice from strangers rather than paying for expert access.\n\n**Target user:** Home buyers (primary residence or investment) mid-transaction who just got a scary inspection report and need a structural engineer, roofing specialist, or HVAC expert to weigh in fast — before their contingency window closes.\n\n**What you'd build:** A two-sided marketplace: buyers submit the inspection excerpt + photos, select an issue category, pay a flat fee ($49–$149), and get a 30-min async video or written opinion from a vetted expert within 24 hours. Experts (licensed SEs, contractors, inspectors) get supplemental income. The solo dev builds the intake form, payment, expert queue, and async delivery layer. Advisor matching is manual at first.\n\n**Strongest signals:** The transaction timeline creates genuine urgency and willingness-to-pay — buyers are about to commit to $300k–$1M+, so $100 for expert clarity is an easy sell psychologically. RepairPricer exists as adjacent validation (inspection cost estimation for negotiation) and has enough traction to have a broker referral program, confirming the space has commercial pull.\n\n**Weakest signals:** Only two source signals here, both from Reddit, and neither explicitly says 'I would pay for this.' The wish is implied, not stated. The 'second opinion' framing is also hard to scale — you're supply-constrained by licensed expert availability and liability concerns (experts may be reluctant to give opinions without a site visit). Supply-side bootstrapping is the core hard problem.\n\n**Top competitors:** RepairPricer (repair cost estimates for negotiation — not expert opinions, ~free to agents via referral deals); Inspectify (inspection booking + report tools, no second-opinion layer); HomeAdvisor/Angi (contractor matching, not fast async opinions). No direct competitor to the 'async expert opinion within 24hrs' wedge was found — that's a gap, but likely for structural reasons (liability, supply).\n\n**Verdict: Pass.** The pain is real but the supply side (getting licensed professionals to give liability-exposed opinions remotely, quickly) is a moat that works against a solo dev, not for them. The two-sided marketplace cold-start problem plus professional liability exposure make this a poor solo bet. Investigate only if you have a warm network of inspectors/SEs willing to participate from day one.",
+      "researchedAt": "2026-04-24T18:46:54.289Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wish for a second opinion or expert advice on handling unexpected major issues during property inspections."
+        },
+        {
+          "kind": "workflow",
+          "summary": "Need to verify and negotiate structural issues found during property inspections, involving multiple experts."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbtl00gkxwpg8m6omvvc",
+      "title": "AI-Guided Home Emergency Triage for Plumbing / Water Heater Failures",
+      "oneLiner": "A step-by-step emergency guidance tool that walks homeowners through immediate damage-control actions while they wait for a plumber.",
+      "niche": "homeowners-emergency-repair",
+      "status": "candidate",
+      "score": 1.9999999999999996,
+      "soloDevScore": 6,
+      "demandScore": 2,
+      "monetizationScore": 2,
+      "competitionScore": 3,
+      "estMrrCeiling": 1500,
+      "estCacBand": "high",
+      "notes": "**The problem.** When a water heater starts leaking at 10 PM and plumbers aren't answering, homeowners don't know whether to shut off gas/water, panic, or wait. The pain is real but episodic — it hits once, lasts a few hours, and is largely solved by a single Google search or a Reddit thread. The two signals here are literally from the same Reddit post, which is a very thin cluster.\n\n**What you'd build.** An AI chat or guided checklist app: user selects the emergency type, gets a triage flow (shut off valve here → photo document → call these numbers → here's what to tell the plumber). Maybe SMS-based for panic-state UX. Could upsell a vetted plumber referral marketplace.\n\n**Weakest signals.** Two posts from one thread is not a cluster — it's noise. There's zero willingness-to-pay signal. People in emergencies want free information immediately; they won't stop to subscribe or enter a credit card. The information itself is freely available on manufacturer sites, YouTube, and Google, and ChatGPT answers this question perfectly well already.\n\n**Competitors.** Roto-Rooter has a full app for scheduling and emergency dispatch. Plumb Now offers on-demand plumber connections 24/7. HomeServe sells ongoing repair plan subscriptions (~$10–20/mo). None of these are exactly the triage-guidance angle, but they surround it, and Google/ChatGPT cannibalize the core value prop for free.\n\n**Verdict: pass.** The demand signal is anemic (single thread), the problem is well-solved by free resources, monetization requires catching a user at the exact moment of panic and getting them to pay — extremely high CAC for an infrequent, low-attention purchase window. MRR ceiling is near zero for a solo dev without a large SEO or home-services distribution channel already in place.",
+      "researchedAt": "2026-04-24T18:47:43.337Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Plumber not available immediately for urgent water heater leak."
+        },
+        {
+          "kind": "workflow",
+          "summary": "Uncertainty in immediate actions to take when a water heater starts leaking slowly."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbuk00ipxwpgclv3hbmt",
+      "title": "Lossless Instagram uploader / Lightroom publish plugin for photographers",
+      "oneLiner": "A tool that exports and uploads photos from Lightroom (or similar) to Instagram at the highest possible quality with minimal compression loss.",
+      "niche": "wedding-photography",
+      "status": "candidate",
+      "score": 2.0249999999999995,
+      "soloDevScore": 5.5,
+      "demandScore": 2.5,
+      "monetizationScore": 2,
+      "competitionScore": 3,
+      "estMrrCeiling": 1200,
+      "estCacBand": "low",
+      "notes": "**The problem.** Instagram aggressively compresses uploads, and photographers—especially wedding photographers—care deeply about portfolio-quality images in their feed. The wish is for a direct Lightroom → Instagram path that skips the lossy mobile-app pipeline.\n\n**What already exists.** The LR/Instagram plugin ($10 one-time) and Capture Monkey both do exactly this, but LR/Instagram is currently broken due to an Instagram API change. Desktop web upload (introduced at higher resolution in May 2025, up to 1440px) has reduced, but not eliminated, the pain. The real solution for most photographers is already documented in free blog posts: export at correct specs, upload via desktop browser.\n\n**What you'd actually build.** A Lightroom Classic publish plugin (using the Lua SDK) or a small desktop companion app that handles the export-spec math and calls the Instagram Graph API. You'd compete directly with a $10 one-time product whose main selling point is that it's broken right now.\n\n**Weakest signals.** Only a single Reddit thread in the cluster. The dominant existing tool is priced at $10 *one-time*—that's the market's revealed WTP. Instagram's own May 2025 quality improvements are shrinking the gap. Most importantly, Instagram has a history of silently revoking API access or changing protocols, which killed LR/Instagram and could kill any successor overnight.\n\n**Top competitors.** LR/Instagram ($10 one-time, currently broken). Capture Monkey (Lightroom plugin, pricing unclear but in the same range). Later and Buffer handle scheduling but don't solve the compression quality angle specifically.\n\n**Verdict: Pass.** The TAM is narrow (wedding/portrait photographers who also care enough to use third-party Lightroom plugins), the WTP ceiling is $10 one-time, and the platform dependency on Instagram's API is an existential risk. Hard to build a recurring SaaS on top of a platform that can pull the rug.",
+      "researchedAt": "2026-04-24T18:48:27.378Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Wedding photographers struggle with low image quality when uploading high-resolution photos to Instagram."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish there was a way to upload high-quality, high-resolution images directly from Lightroom or other photo editing software to Instagram without losing quality."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbux00jexwpgn3k470lu",
+      "title": "Podcast Guest Outreach CRM for Independent Hosts",
+      "oneLiner": "A lightweight CRM for indie podcast hosts to track guest outreach, pitches, and booking status — no enterprise bloat.",
+      "niche": "indie-podcasters",
+      "status": "candidate",
+      "score": 1.799999999999999,
+      "soloDevScore": 5.5,
+      "demandScore": 3,
+      "monetizationScore": 6,
+      "competitionScore": 7.5,
+      "estMrrCeiling": 7000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** Indie podcast hosts juggle two distinct pain points — getting guests to join without a software install, and keeping track of who they've pitched, who responded, and who's booked. The cluster contains one signal per pain point, both vague Reddit wishes with no explicit WTP.\n\n**Target user:** Solo or small-team podcast hosts (1–10 episodes/month), not agencies. They're time-poor, not tech-savvy, and annoyed that existing tools feel over-engineered or expensive.\n\n**What you'd build:** The browser-based recording angle is a hard pass for a solo dev — Riverside ($15/mo), SquadCast (~$20/mo), Zencastr, and Iris all solve 'no guest install required' and are VC-backed with native WebRTC local-track recording. You cannot out-engineer them. The feasible slice is the **guest outreach CRM**: pipeline view (prospect → pitched → confirmed → recorded → published), email templates, follow-up reminders, and a public booking link. Think Notion-meets-Airtable but podcast-specific.\n\n**Strongest signals:** WTP is real in adjacent tools — PodMatch charges $38–64/mo for matching, Rephonic charges $99–299/mo for research/outreach at the agency tier. There's a pricing gap for small hosts who need simple pipeline tracking, not full agency tooling.\n\n**Weakest signals:** Only two vague Reddit posts, neither says 'I would pay for this.' The outreach CRM space already has Wobaka (podcast-focused CRM), PodPitch (~$199–299/mo), and Less Annoying CRM with podcast templates. Demand signal is thin and the product has to fight for attention in a noisy niche.\n\n**Top competitors:** (1) Riverside.fm — solves no-install recording, $15/mo+, not a CRM. (2) PodMatch — guest matching marketplace, $38–64/mo, not a pipeline tracker. (3) Wobaka — podcast-focused CRM, exact pricing unclear but targets this gap most directly.\n\n**Verdict: PASS.** The recording angle is saturated with well-funded incumbents a solo dev cannot match technically or in marketing budget. The outreach CRM angle is more feasible but has weak demand evidence (2 posts, no explicit WTP) and several existing tools already occupying the space. $7k MRR ceiling is realistic but requires sustained content/SEO in a crowded niche. Investigate only if you find 10+ people explicitly describing a broken workflow and mentioning a budget.",
+      "researchedAt": "2026-04-24T18:49:15.253Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wish for a remote podcasting tool that doesn't require guests to install software."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool to manage and track podcast guest outreach."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbvc00k7xwpgniab4ztw",
+      "title": "Copyright Claim Pre-Check & Workflow Tool for Reaction Video Creators",
+      "oneLiner": "Help YouTube reaction creators identify and handle Content ID claims from background music in source footage before publishing.",
+      "niche": "youtube-reaction-videos",
+      "status": "candidate",
+      "score": 0.09999999999999964,
+      "soloDevScore": 5,
+      "demandScore": 2,
+      "monetizationScore": 2,
+      "competitionScore": 7,
+      "estMrrCeiling": 2500,
+      "estCacBand": "medium",
+      "notes": "**The problem:** When a reaction creator plays a clip — music video, TV scene, a meme — the background music in that source footage triggers YouTube Content ID claims. The creator didn't choose the music; it came with the content they're reacting to. Unlike standard YouTubers choosing background tracks, reaction creators have no control over what plays in the original clip.\n\n**Target user:** Mid-tier YouTube reaction channels (10k–500k subs) who monetize and lose revenue share or risk strikes from Content ID hits on source clips. A narrow cohort within an already niche category.\n\n**What you'd build:** Realistically, a pre-upload analyzer that screens the reaction video for recognized music and predicts likely claim types (revenue-share vs. block), plus a guided workflow for when to mute/trim vs. dispute. Possibly a Content ID risk score tied to the YouTube URL being reacted to.\n\n**Strongest signal:** The problem is real and well-understood — Content ID is a known pain point. The \"reaction + copyright\" intersection is frequently discussed on r/PartneredYoutube and creator forums.\n\n**Weakest signals:** Only two signals from a single Reddit thread, no willingness-to-pay anywhere in the cluster. Creators overwhelmingly treat this as a free-tools problem or just accept revenue-share claims. The word \"pay\" appears nowhere near this pain.\n\n**Top competitors with pricing:**\n- YouTube Studio (free, built-in): lets creators trim, mute, or replace claimed audio after upload — already covers the core need\n- Mubert Copyright Checker (free): pre-upload Content ID likelihood scan\n- VideoDubber Copyright Checker (free): similar pre-upload scan\n- TuneReel (claim removal, unclear pricing): dispute service, not a prevention tool\n\n**Verdict: pass.** The supply of free tools — including YouTube's own editor — already addresses the workflow. The cluster has zero monetization signal, a very narrow audience, and the core technical lift (reliable Content ID prediction via API) requires YouTube Data API access that is heavily rate-limited and not designed for this use case. MRR ceiling is low even in a best-case scenario.",
+      "researchedAt": "2026-04-24T18:49:57.230Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Creators struggle when reaction videos trigger copyright claims on licensed music."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish there was a way to ensure background music in reactions doesn't cause copyright issues for other creators."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbw700lyxwpgdllsospy",
+      "title": "India-Specific Amazon Wholesale Research & Guidance Tool",
+      "oneLiner": "A product research and compliance tool tailored for Amazon.in wholesale resellers navigating GST, Indian suppliers, and local market dynamics.",
+      "niche": "amazon-wholesale-india",
+      "status": "candidate",
+      "score": 0.7999999999999994,
+      "soloDevScore": 5,
+      "demandScore": 2,
+      "monetizationScore": 4,
+      "competitionScore": 7,
+      "estMrrCeiling": 6000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** Amazon wholesale resellers in India lack consolidated, India-specific guidance — tools like Jungle Scout and Helium 10 support Amazon.in but aren't built around Indian-specific concerns: GST compliance, domestic supplier sourcing, rupee-based margin math, and local logistics nuances.\n\n**Target user:** Indian Amazon sellers doing wholesale/resale, likely 3P sellers on Amazon.in with $500–$5k/mo in inventory spend. This is a real population, but also notoriously price-sensitive — Indian SaaS buyers expect steep discounts vs. US pricing.\n\n**What you'd build:** A lite product-research and profitability calculator tuned for Amazon.in — GST-aware margin math, BSR trends for Indian categories, Indian supplier directory integration (IndiaMART API), possibly a community/content layer. The content play (newsletter, YouTube) might actually be more tractable than pure SaaS.\n\n**Strongest signals:** The broader Amazon seller tools market has clear WTP ($29–$99/mo globally), and there is a real India-specific gap in tooling — SellerApp comes closest but is PPC-focused. Tools like Analyzer.Tools and Seller Assistant are US/UK-centric.\n\n**Weakest signals:** Both pain signals come from the *same single Reddit post* — this is a cluster of one. There is no second independent source, no willingness-to-pay signal, and no indication of how many India-based wholesale sellers exist and are underserved vs. already using global tools.\n\n**Top competitors:** (1) SellerApp (~$49–$99/mo) — India-aware, good PPC tools, weak on wholesale research. (2) Jungle Scout (~$49/mo) — supports Amazon.in but US-centric UX. (3) Seller Assistant (~$29–$65/mo) — wholesale-focused but not India-specific.\n\n**Verdict: Pass.** The underlying market exists, but the signal cluster is a single Reddit post with no independent corroboration or WTP signal. India's price sensitivity compounds the unit-economics problem — you'd need high volume at lower ASPs to hit $15k/mo. Investigate only if you can find 10+ independent posts or a subreddit with sustained traffic around this specific India wholesale gap.",
+      "researchedAt": "2026-04-24T18:50:36.090Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Struggling to find specific guidance on Amazon wholesale/reselling in India."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for detailed, up-to-date information and insights on Amazon wholesale reselling in India."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbwa00m3xwpgo0v78uzk",
+      "title": "Amazon Listing Suppression Diagnostic Tool for FBA Sellers",
+      "oneLiner": "Root-cause diagnosis for why an Amazon listing got flagged, suppressed, or lost traction — beyond just alert pings.",
+      "niche": "amazon-fba",
+      "status": "candidate",
+      "score": 0.9249999999999989,
+      "soloDevScore": 4.5,
+      "demandScore": 2.5,
+      "monetizationScore": 6,
+      "competitionScore": 8.5,
+      "estMrrCeiling": 6000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** Amazon sellers lose sales when listings get suppressed or lose Buy Box eligibility, but the root cause — policy violation, missing attribute, regional glitch, competitor hijack — is buried in Seller Central. The time-to-diagnosis can be hours or days.\n\n**Target user:** FBA brand owners or small agencies managing 50–500 SKUs who need faster root-cause triage, not just email alerts.\n\n**What you'd build:** An SP-API-connected tool that polls listing health endpoints, cross-references suppression type against a decision tree of known causes (image issues, pricing violations, category policy, competitor abuse), and surfaces a ranked list of probable causes with fix steps. The differentiation is diagnosis, not alerting.\n\n**Strongest signal:** Adjacent tools have clear WTP — SentryKit charges $19–49/mo, Helium 10 charges $39–299/mo, and sellers clearly pay for this category. The diagnostic gap is real; most incumbents alert you *that* something broke, not *why*.\n\n**Weakest signal:** The two Reddit posts driving this cluster have near-sequential post IDs (`1sttg56`, `1sttlv4`) and identical titles posted to two subreddits simultaneously — a strong indicator of synthetic or astroturfed demand signals, not organic pain. There is no direct WTP signal in the posts. The Amazon SP-API requires an approval process and listing health data access is gated, which adds solo-dev friction.\n\n**Top competitors:** (1) **SentryKit** — $19–49/mo, monitoring + alerts, no root-cause diagnosis. (2) **Helium 10 Alerts** — bundled into $39–249/mo suites, dominant brand, broad feature set. (3) **SellerPulse by eComEngine** — suppression-focused monitoring, SMB pricing. All three solve alerting; none offer structured root-cause trees.\n\n**Verdict: Pass.** The space is crowded with well-funded tools, the demand signals are likely synthetic, and SP-API access adds regulatory/approval friction for a solo dev. The diagnostic differentiation is real but thin — incumbents could ship it as a feature in a sprint. Investigate only if you have existing SP-API access and a warm audience of FBA sellers to validate with.",
+      "researchedAt": "2026-04-24T18:51:32.595Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Figuring out why an Amazon listing gets flagged or loses traction is frustrating and time-consuming."
+        },
+        {
+          "kind": "pain",
+          "summary": "Figuring out why an Amazon listing gets flagged or drops is frustrating and time-consuming."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbwg00mfxwpgealestzz",
+      "title": "Per-Post Layout Customization for Shopify Blogs",
+      "oneLiner": "A Shopify app that lets merchants apply unique layouts and sections to individual blog posts without creating a separate template file for each.",
+      "niche": "shopify-merchants",
+      "status": "candidate",
+      "score": 2.274999999999999,
+      "soloDevScore": 7,
+      "demandScore": 3.5,
+      "monetizationScore": 5,
+      "competitionScore": 7,
+      "estMrrCeiling": 4000,
+      "estCacBand": "low",
+      "notes": "**The problem.** Shopify's native blog system forces one template per post-group — to get a different layout on a single post you must duplicate the template file in Liquid. Merchants who want hero images on some posts, video embeds on others, or different sidebar configurations per article hit a wall with the theme editor.\n\n**Target user.** Small Shopify store owners running content-heavy blogs (tutorials, recipes, lookbooks) who aren't developers and don't want to pay a Shopify Partner to fork Liquid templates every time.\n\n**What you'd actually build.** A Shopify embedded app + theme app extension that injects a block-based composer (think: section/block schema) into each blog post's editor, storing per-post layout config in metafields and rendering it via a theme extension. The hard part is the render-side integration; the editor UI is manageable with Shopify App Bridge + Polaris.\n\n**Signal strength.** Only two signals, both from the same Reddit thread. That's a very thin signal base — no evidence of multiple independent buyers asking for this, no willingness-to-pay stated, no pricing benchmarks volunteered. The pain is real (Shopify's blog is genuinely limited) but the cluster doesn't prove strong market pull.\n\n**Competition.** This space is crowded: **Blog Studio** ($9.99/mo, drag-and-drop per-post composer), **Bloggle** (freemium with paid tiers ~$14-29/mo), **Shogun** and **PageFly** (~$39-99/mo full page builders that also cover blog posts). All four directly address per-post layout. You'd be entering at the bottom of a market where incumbents have reviews, integrations, and brand awareness. The $9.99 anchor set by Blog Studio makes it hard to charge more without a clearly differentiated angle.\n\n**Verdict: pass.** The pain is real but the niche is already served by multiple dedicated apps at low price points. Two signals from a single thread don't justify building against four established competitors. Investigate only if you find 10+ independent threads complaining that *existing* blog apps are broken or too complex — that would be the actual gap.",
+      "researchedAt": "2026-04-24T18:52:16.361Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Difficulty customizing individual blog posts within a template in Shopify."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for more flexible customization options for individual blog posts without creating multiple templates."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbxr00owxwpghadhg9jv",
+      "title": "Marketplace Seller Margin & Pricing Analyzer (FBA + Etsy)",
+      "oneLiner": "Help new Amazon FBA and Etsy sellers understand true profitability after fees, PPC, and competition-driven price pressure.",
+      "niche": "marketplace-sellers",
+      "status": "candidate",
+      "score": 1.8999999999999995,
+      "soloDevScore": 6,
+      "demandScore": 3.5,
+      "monetizationScore": 6.5,
+      "competitionScore": 8.5,
+      "estMrrCeiling": 4000,
+      "estCacBand": "medium",
+      "notes": "**The problem**: New sellers on Amazon FBA and Etsy chronically underprice or overbid on PPC because they lack a clear picture of true per-unit profitability. On FBA, PPC typically eats 10–25% of revenue, which wipes out margins on low-ticket items. On Etsy, suspiciously cheap competitors (likely dropshippers or AliExpress resellers) force handmade sellers to either race to the bottom or leave money on the table.\n\n**Target user**: Early-stage private-label FBA sellers and handmade/POD Etsy shop owners, 0–12 months in, still learning unit economics. They're active on Reddit, YouTube, and Facebook groups.\n\n**What you'd build**: A margin calculator that ingests COGS, Amazon/Etsy fees, shipping, PPC budget, and return rate to produce a true net-per-unit figure, plus a lightweight competitor price tracker that flags when nearby listings drop below a sustainable floor.\n\n**Strongest signals**: Willingness to pay is proven — Helium 10 runs $39–$279/mo, Jungle Scout $49–$129/mo, Alura ~$13–$30/mo, and sellers actively pay for these. The pain (margin blindness) is real and recurring.\n\n**Weakest signals**: The cluster is only two posts and spans *two different marketplaces*, meaning there's no tight niche here — just a generic 'seller struggles' bucket. More critically, both spaces are brutally saturated. For Amazon FBA: Helium 10, Jungle Scout, SellerApp, AMZScout, SellerSprite, Viral Launch, Seller Labs. For Etsy: EverBee, Alura, CraftyStats, Sale Samurai, SalesDoe, Insight Factory. All of these have SEO moats, YouTube presences, and affiliate armies.\n\n**Top competitors**: (1) Helium 10 — $39–$279/mo, dominant FBA suite. (2) Alura — $13–$30/mo, Etsy-focused research + analytics. (3) CraftyStats — Etsy competitor tracker, free tier + paid plans.\n\n**Verdict**: Pass. Both sub-niches are overcrowded with funded incumbents who've already captured SEO and affiliate channels. The two-signal cluster doesn't point to a specific underserved angle — it just restates well-known pain that existing tools already address. MRR ceiling is low given how hard differentiation would be.",
+      "researchedAt": "2026-04-24T18:53:02.018Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "New Amazon FBA sellers struggle with tight margins and high PPC costs for low-ticket products."
+        },
+        {
+          "kind": "pain",
+          "summary": "New Etsy sellers struggle with pricing due to suspiciously low-priced competition."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zby900prxwpgs0m8klb8",
+      "title": "AI Traffic Quality Scorer — identify which AI-referred visitors convert",
+      "oneLiner": "A lightweight analytics layer that segments AI-sourced traffic by quality and conversion likelihood, helping site owners act on agentic visitors rather than lump them with bots.",
+      "niche": "web-analytics",
+      "status": "candidate",
+      "score": 2.7749999999999995,
+      "soloDevScore": 6,
+      "demandScore": 4,
+      "monetizationScore": 4.5,
+      "competitionScore": 5,
+      "estMrrCeiling": 8000,
+      "estCacBand": "low",
+      "notes": "**The problem.** As AI assistants (ChatGPT, Claude, Perplexity) send referral traffic and agentic scrapers crawl sites, site owners can't tell which visits are conversion-eligible humans vs. bots vs. low-intent crawlers. They want a signal: \"is this AI-sourced visitor worth a follow-up CTA?\" The affiliate marketing signal in cluster 2 is a weaker related wish — focus on actionable daily engagement metrics — but it points at the same underlying gap: standard analytics don't parse intent.\n\n**Target user.** Indie makers, content publishers, and small e-commerce operators who are starting to see LLM referral traffic in GA but have no way to qualify it. They're already paying for Plausible or GA; this would be an add-on or replacement layer.\n\n**What you'd build.** A JS snippet + backend that enriches session data with (a) LLM referrer detection (via referer headers, UTM patterns, known agent UA strings), (b) engagement scoring (scroll depth, time-on-page, multi-page visit), and (c) a simple conversion funnel tied to a goal URL. Dashboard shows \"AI-referred sessions\" broken out from bot traffic, with a quality score per session. Could also expose a Zapier/webhook to fire on high-quality AI visits.\n\n**Strongest signals.** The macro trend is strong: Cloudflare data suggests bot traffic will exceed human traffic by 2027, and LLM referral is a genuinely new channel that GA4 misclassifies as direct. Known Agents (formerly Dark Visitors) rebranded and grew, validating the space. Traffic Intelligence charges $19/mo for basic bot/human split — demand exists at that price point.\n\n**Weakest signals.** Only two Reddit posts, neither showing explicit WTP. The cluster conflates two different problems (AI traffic quality vs. affiliate funnel focus), so true demand for this specific tool is unclear. The second signal is really about marketing discipline, not analytics infra.\n\n**Top competitors.** (1) Known Agents (knownagents.com) — tracks AI agents, LLM referrals, robots.txt automation; free tier + paid (pricing opaque). (2) Clickport Analytics — 11-layer bot detection, analytics replacement; pricing not disclosed publicly. (3) Traffic Intelligence (laughingprofessor.net) — $19/mo flat, basic bot/human/AI traffic split for small businesses. None appear to do conversion-quality scoring for AI-sourced sessions specifically — that's the gap.\n\n**Verdict: Investigate.** The space is real and early, but the demand signals are thin and the niche within a niche (quality-scoring AI traffic, not just detecting it) may be too narrow for $15k/mo solo. Worth 2–3 weeks of customer discovery — post in r/Entrepreneur, r/analytics, and indie-hacker communities to gauge if people will pay $29–49/mo for this. If 10 people say yes, build the MVP.",
+      "researchedAt": "2026-04-24T18:54:12.729Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool to identify high-quality AI-driven traffic that could convert into real customers."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool that helps focus on one offer and traffic source at a time, providing clear daily actions and tracking engagement rather than just likes or views."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbz000r5xwpgren5ikro",
+      "title": "AI-Powered Personal Brand Content Strategy & Execution Tool",
+      "oneLiner": "An AI tool that creates a tailored content calendar, formats, and messaging framework for solopreneurs and small business owners building a personal brand on social media.",
+      "niche": "personal-branding-solopreneurs",
+      "status": "candidate",
+      "score": 1.4500000000000002,
+      "soloDevScore": 5,
+      "demandScore": 4,
+      "monetizationScore": 5,
+      "competitionScore": 8,
+      "estMrrCeiling": 8000,
+      "estCacBand": "medium",
+      "notes": "**The Problem**\nSolopreneurs and small business owners know they need a content presence but lack time, strategic clarity, and niche-specific playbooks. They want something beyond generic writing assistants — they want a system that tells them *what* to post, *why*, and *when*, calibrated to their specific audience and business model.\n\n**Target User**\nCoaches, consultants, freelancers, and early-stage founders trying to build an audience on LinkedIn, Twitter/X, or Instagram. Budget-conscious but willing to pay for tools that demonstrably save time or grow their pipeline. The AI video outreach signal (signal #3) is a slightly different buyer — SDRs and sales-led founders — and weakens the cluster's cohesion.\n\n**What You'd Actually Build**\nOnboarding questionnaire captures niche, goals, tone, and ICP. An AI pipeline then generates a 30-day content strategy (themes, post types, cadence), drafts individual posts, and offers a simple feedback loop to refine voice over time. Differentiator: vertical-specific templates (e.g., \"B2B consultant on LinkedIn\" vs. \"Etsy seller on Instagram\") rather than blank-canvas generation. Tech stack: Next.js + OpenAI/Anthropic API + a lightweight scheduling integration (Buffer API). Buildable solo in 4–6 weeks.\n\n**Strongest Signals**\nThere's clear latent demand — people are hiring humans to do this ($500–$2k/mo personal brand ghostwriting is a real market). Signal #2 specifically calls out wanting \"niche-specific formats,\" which is a gap current tools don't fill well. Jasper and Copy.ai exist but are generic writing aids, not strategy tools.\n\n**Weakest Signals**\nOnly 3 signals, sourced from comment threads under a service-provider pitch post — these are responses to a human offer, not organic tool requests. Willingness-to-pay for *software* (vs. a done-for-you service) is unproven. The AI video outreach signal (#3) belongs to a different product category and muddies the cluster's focus. Competition is brutal: Jasper (~$39/mo), Copy.ai (~$49/mo), Taplio (LinkedIn-specific, ~$49/mo), and Shield Analytics all have distribution and brand.\n\n**Top Competitors**\n- **Taplio** – LinkedIn-specific content tool, ~$49/mo. Closest match for the LinkedIn persona.\n- **Jasper** – ~$39/mo Creator plan. General AI writing, dominant brand awareness.\n- **Hypefury / Publer** – Social scheduling with AI suggestions, $12–$59/mo range.\n\n**Verdict: Pass (or heavily niche down before shipping)**\nThe space is genuinely crowded with funded incumbents at low price points, making differentiation and CAC economics difficult for a solo dev. If you were to proceed, the only viable path is extreme vertical specificity (e.g., \"content OS for B2B LinkedIn coaches\" or \"Instagram strategy for Etsy sellers\") and charging $99+/mo to justify the CAC. Even then, investigate further before building — run 10 customer interviews first.",
+      "researchedAt": "2026-04-24T18:54:50.331Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wish for an AI tool that provides tailored content strategy and execution framework."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool that provides specific content strategies and formats tailored to their niche."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for an AI tool that can research prospects and generate personalized videos."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zbz200r9xwpgiuz6f4k9",
+      "title": "Non-Pushy Post-Job Feedback Collector for Local Service Businesses",
+      "oneLiner": "Automated SMS/email feedback requests sent after a service job closes, with an internal satisfaction gate before routing happy customers to Google reviews.",
+      "niche": "local-service",
+      "status": "candidate",
+      "score": 1.5499999999999998,
+      "soloDevScore": 6.5,
+      "demandScore": 2.5,
+      "monetizationScore": 5.5,
+      "competitionScore": 8,
+      "estMrrCeiling": 7000,
+      "estCacBand": "medium",
+      "notes": "**The problem** is real: small-trades owners (plumbers, HVAC techs, electricians) want honest post-job feedback but feel awkward asking in person and forget to follow up later. The ideal flow is: job closes → automated SMS → 1-5 star internal rating → happy customers nudged to Google, unhappy ones asked for private detail. This is a classic \"reputation funnel\" pattern.\n\n**Target user** is a solo or 2–5 person home-service shop already using some scheduling software but not a full CRM, or one whose CRM's feedback feature feels clunky.\n\n**What you'd actually build:** a lightweight webhook/API integration (or manual CSV import) that triggers a two-step SMS sequence. Step 1: quick star rating link. Step 2: conditional branch — 4-5 stars → Google review deeplink; 1-3 stars → private text box. Admin dashboard shows trends. Stack is dead simple: Next.js, Twilio or Resend, Postgres.\n\n**Strongest signal:** Podium charges $399–$599/mo for this (plus messaging and webchat), proving the market pays real money. GoReminders and Boast.io ($50–$208/mo) show a lower-cost tier exists. Standalone review-request tools do find customers.\n\n**Weakest signals:** The source cluster is just two posts from the same Reddit thread — thin evidence of demand beyond a single person venting. More critically, every major home-service CRM already bundles this: Housecall Pro and Jobber ($49–$169/mo) both include automated Google review requests. Any plumber already paying for scheduling software likely has this feature sitting unused, not absent. Differentiation would have to be \"so much simpler they actually use it\" — a hard sell.\n\n**Top competitors:** Podium ($399–599/mo, full reputation + messaging suite), GatherUp (reputation management, pricing not publicly listed), Housecall Pro / Jobber (CRMs with built-in review automation at $49–$169/mo), GoReminders (automated review requests, $30+/mo). The space is genuinely saturated at every price tier.\n\n**Verdict: pass.** The core feature is a weekend build, but distribution is the wall. Local service businesses are already bombarded by CRM upsells, and the feedback feature is typically *included* in tools they pay for. Winning customers requires outbound sales or SEO against well-funded incumbents. The signal cluster is also too thin (one Reddit thread, no explicit WTP mention) to validate active unmet demand.",
+      "researchedAt": "2026-04-24T18:55:44.329Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Struggling to consistently gather honest customer feedback without being pushy."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool that makes it easier to get consistent, non-pushy customer feedback."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc0e00tmxwpgmzfwpf1t",
+      "title": "Structured Plant Issue Diagnostic Tool",
+      "oneLiner": "A guided questionnaire-style diagnostic for plant owners that asks about watering, drainage, soil, and symptom timing to pinpoint care problems.",
+      "niche": "plant-care",
+      "status": "candidate",
+      "score": 1.1749999999999998,
+      "soloDevScore": 6.5,
+      "demandScore": 2,
+      "monetizationScore": 5.5,
+      "competitionScore": 8.5,
+      "estMrrCeiling": 4000,
+      "estCacBand": "high",
+      "notes": "**The problem:** Plant owners genuinely struggle to self-diagnose issues — they under-describe symptoms, don't track care history, and get vague advice from forums. A structured intake (watering cadence, pot drainage, soil mix, symptom timeline) before surfacing a diagnosis is a real UX improvement over \"just take a photo.\"\n\n**Target user & signal quality:** Both signals originate from a single r/startups post that is itself a meta-validation write-up, not organic demand from actual plant owners. There is no evidence of users outside that post explicitly asking for this, no willingness-to-pay signals, and no corroborating threads from gardening or houseplant subs. Demand score is very low as a result.\n\n**What you'd build:** A web or mobile app with a structured symptom-intake flow (decision tree or LLM-backed chat), plant database with care profiles, and diagnosis output with treatment steps. Technically feasible solo — LLM APIs handle the reasoning, no custom ML required. The hard part is distribution, not engineering.\n\n**Competition — deeply saturated:** PictureThis (~$8/mo or $40/yr, photo ID + disease diagnosis, tens of millions of users), PlantIn ($20/mo or $50 lifetime, AI + human expert review), Planta (~$8/mo, care reminders + diagnosis), Blossom (~$5/mo), Greg (freemium, watering reminders). All already incorporate structured care questions in their diagnosis flows. The \"structured questionnaire\" angle is a feature incumbents can clone in a sprint, not a durable moat.\n\n**Verdict: Pass.** Consumer plant apps are one of the most saturated mobile niches. The demand signal is too thin (one meta post, no organic pain), CAC for B2C consumer apps is brutal for a solo dev, and differentiation is minimal against funded incumbents. A narrow B2B pivot — e.g., a diagnostic widget licensed to garden centers or a tool for rare-plant communities (aroids, orchids, bonsai) — would be worth investigating separately, but the opportunity as described does not warrant building.",
+      "researchedAt": "2026-04-24T18:56:37.886Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Users struggle to diagnose plant issues without structured information like watering frequency, drainage, soil type, and symptom onset."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool that provides a structured approach to diagnosing plant care issues with specific questions about watering, drainage, soil type, and symptom timing."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc3400yaxwpgizzyb9hs",
+      "title": "Energy-aware side-project scheduler for after-hours builders",
+      "oneLiner": "A lightweight daily planner that helps people with demanding day jobs protect and schedule creative/side-project time based on their energy levels.",
+      "niche": "side-project-builders",
+      "status": "candidate",
+      "score": 0.04999999999999982,
+      "soloDevScore": 5,
+      "demandScore": 2,
+      "monetizationScore": 3,
+      "competitionScore": 8,
+      "estMrrCeiling": 4000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** People with physically or mentally taxing day jobs struggle to carve out consistent time and energy for side projects or creative hobbies. The pain is real but generic — it's a universal productivity/lifestyle complaint, not a niche-specific workflow gap.\n\n**Signal quality is weak.** Both sources are Reddit venting posts, not product requests. Neither mentions a tool they wish existed, a price they'd pay, or a workflow they've tried and abandoned. One is in r/Design (hobbyist), one in r/SaaS (indie hacker). These are two different user types whose pain overlaps only superficially. No cluster of people explicitly asking for exactly this product.\n\n**What you'd build:** A calendar-integrated daily planner with energy-level tracking (manual or wearable sync), smart scheduling of creative blocks in high-energy windows, and streak/momentum features. Technically solo-feasible, but the design and UX bar to beat incumbents is high.\n\n**Competition is brutal.** Motion ($19–34/mo, AI scheduling), Reclaim.ai ($8–20/mo, smart calendar blocking), Sunsama ($20/mo, daily rituals for knowledge workers), and Structured (iOS) all occupy this space with substantial funding and user bases. rivva.app is specifically targeting energy-based scheduling. There is no obvious gap in the market for a solo dev to exploit without a very sharp niche angle (e.g., \"for pottery makers\" or \"for Etsy sellers\").\n\n**Verdict: pass.** The pain is real but the signals are too vague and non-specific to de-risk building. The productivity scheduling space is one of the most crowded in consumer SaaS. Without a defensible niche (a specific profession, workflow, or tool integration), a solo dev would be building a worse version of Motion for no identifiable audience. If this cluster resurfaces with signals from a specific community (night-shift nurses, Etsy sellers, 3D printing hobbyists) with explicit tool requests and WTP, investigate then.",
+      "researchedAt": "2026-04-24T18:57:25.622Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Struggling to find time and energy for creative hobbies after physically demanding part-time job."
+        },
+        {
+          "kind": "pain",
+          "summary": "Struggling to find time and energy to work on SaaS project after full-time job."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc4a0108xwpgkx4hjcup",
+      "title": "Freelance Job Scam Detector for New Independents",
+      "oneLiner": "An LLM-powered tool that analyzes job postings or client messages and returns a scam-likelihood score with red-flag explanations.",
+      "niche": "new-freelancers",
+      "status": "candidate",
+      "score": 2.9749999999999996,
+      "soloDevScore": 7.5,
+      "demandScore": 3.5,
+      "monetizationScore": 2,
+      "competitionScore": 3,
+      "estMrrCeiling": 2500,
+      "estCacBand": "low",
+      "notes": "**The problem:** New freelancers—especially those sourcing work on Reddit, Discord, or social media rather than vetted platforms—can't reliably distinguish legitimate clients from scammers. They lack the pattern-matching experience veterans have, and the cost of getting it wrong (wasted time, identity theft, unpaid work) is real.\n\n**Target user:** Freelancers 0–2 years in, earning under $3k/mo, likely sourcing from r/forhire, r/freelance, or cold DMs. They skew young, international, and bootstrapped.\n\n**What you'd build:** A simple paste-or-URL interface that feeds a job post or client message to an LLM with a curated red-flag prompt (upfront fees, off-platform payment push, vague deliverables, too-good salary, suspicious domain). Returns a 1–10 scam score, highlighted red flags, and a plain-English verdict. Could add email/LinkedIn lookup as a premium feature.\n\n**Strongest signal:** The pain is genuine and recurring—anyone who has spent time in freelancing subreddits has seen dozens of \"is this legit?\" posts. SEO for \"freelance scam checker\" is low-competition. Build cost is low (LLM wrapper + simple UI).\n\n**Weakest signals:** Only 2 posts in this cluster—very thin evidence of demand at scale. More critically, there is zero willingness-to-pay signal. Freelancers are famously price-sensitive, and the free substitute (pasting the message into ChatGPT with \"is this a scam?\") works almost as well today. The Reddit posts ask for advice, not tools—that's a community dynamic, not a product gap.\n\n**Top competitors:** Bitdefender Scamio (free, general-purpose, not freelance-specific); ChatGPT/Gemini (free, good enough for the task); Skydo's educational content (blog posts, not a tool). No dedicated paid freelance-scam checker found—but low competition here is a supply signal, not a demand signal.\n\n**Verdict: Pass.** The build is easy but the business is broken. Freelancers won't pay for this when free AI tools partially solve it. The cluster is too thin to justify the build, and the ceiling (~$2.5k MRR via freemium) is far below the $15k/mo target. Could be a free lead-gen tool for an adjacent paid product, but not a standalone business.",
+      "researchedAt": "2026-04-24T18:58:13.609Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "New freelancers struggle to distinguish legitimate job offers from scams on Reddit."
+        },
+        {
+          "kind": "pain",
+          "summary": "Difficult to distinguish legitimate clients from scammers in freelancing platforms."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc4k010pxwpgt3ill4q9",
+      "title": "Spreadsheet-to-Software: Reconciliation & IP Licensing Billing Automation",
+      "oneLiner": "Replace error-prone spreadsheets with automated tracking and billing alerts for finance teams and IP licensing offices.",
+      "niche": "accounting-finance / ip-licensing",
+      "status": "candidate",
+      "score": 1.8249999999999993,
+      "soloDevScore": 4.5,
+      "demandScore": 5,
+      "monetizationScore": 5.5,
+      "competitionScore": 8,
+      "estMrrCeiling": 9000,
+      "estCacBand": "high",
+      "notes": "**The problem.** Both signals share the same root cause: spreadsheets used to track financial obligations eventually produce errors — missed invoices, reconciliation gaps, compliance failures. The IP licensing signal is the sharper one: a team reportedly recovered $200k in missed billing after switching off spreadsheets, which is a quantifiable, headline-ready ROI hook.\n\n**Target user.** For the accounting signal: finance/accounting teams at small-to-mid businesses who haven't graduated to proper close-management software. For the IP signal: university tech transfer offices or small licensing shops (5–50 active agreements) drowning in Excel. These are two very different buyers with different sales motions.\n\n**What you'd build.** For the IP niche specifically: agreement ingestion (upload contracts, extract key dates/rates), automated billing milestone reminders, compliance status dashboard, basic royalty calculation. It's a glorified CRM + reminder engine for licensing deals. Technically straightforward — Next.js + Postgres + cron jobs + PDF parsing.\n\n**Strongest signal.** The $200k recovery story is the kind of ROI narrative that converts. University tech transfer offices have real budget and quantifiable pain. A solo dev could build an MVP in 4–6 weeks targeting this slice.\n\n**Weakest signal.** Both Reddit posts are thin — one is a complaint thread, one is likely self-promotional ('a team recovered...'). No explicit pricing willingness from multiple independent buyers. More critically, the two signals are really two different markets glued together by 'spreadsheet bad.'\n\n**Top competitors.**\n- **BlackLine / FloQast / Trintech**: dominate accounting reconciliation, starting ~$1,500–$2,000/mo, enterprise sales. Totally inaccessible niche for a solo dev.\n- **Inteum**: the dominant university tech transfer platform, complex, enterprise-priced, long procurement cycles.\n- **MetaComet Royalty Tracker**: focused on publisher/entertainment royalties, not university IP.\n\n**Verdict: Pass.** The accounting reconciliation space is one of the most saturated in B2B SaaS — BlackLine alone is a $1B+ company. The IP licensing angle is more differentiated, but Inteum owns university tech transfer and university procurement is notoriously slow (6–18 month sales cycles, legal review, IT approval). Even at $300–500/mo per institution, reaching $9k MRR means 18–30 signed university deals — a brutal CAC for a solo dev without an existing network in academia. Investigate only if you have a warm intro into 5+ university tech transfer offices who will pay before you build.",
+      "researchedAt": "2026-04-24T18:59:06.922Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Manual tracking and reconciliation in spreadsheets leads to errors and inefficiencies."
+        },
+        {
+          "kind": "pain",
+          "summary": "Manual tracking in spreadsheets leads to missed billing and compliance issues."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc5c011zxwpg335mv996",
+      "title": "Client Document Portal for Accountants/Bookkeepers (Multi-Account Upload)",
+      "oneLiner": "A lightweight client-facing portal letting bookkeeping clients upload bank statements and receipts organized by account, bridging the gap between client chaos and QBO/Xero workflows.",
+      "niche": "bookkeepers-accountants",
+      "status": "candidate",
+      "score": 0.9249999999999994,
+      "soloDevScore": 4,
+      "demandScore": 2.5,
+      "monetizationScore": 7,
+      "competitionScore": 9,
+      "estMrrCeiling": 4000,
+      "estCacBand": "high",
+      "notes": "**The problem:** Bookkeepers and accountants struggle to collect organized financial documents (bank statements, receipts) from clients who don't know how to structure uploads by account. Clients email PDFs in no order, use inconsistent naming, and mix accounts. The LEAP/QBO signal is a narrower sub-variant: law firms using LEAP for client registers want IOLTA trust account bookkeeping synced automatically rather than manually re-entered.\n\n**Target user:** Independent bookkeepers and small accounting firms (1–5 staff) who do monthly close for small business clients. The LEAP variant targets law firm bookkeepers specifically — a niche within a niche.\n\n**What you'd build:** A branded document request portal where the bookkeeper defines \"buckets\" (e.g., Chase Business Checking, AmEx, PayPal) and clients drop files into the right bucket. Automatic reminders, a simple audit trail, and a QBO/Xero push for extracted data. The LEAP angle would require a native LEAP API integration which adds proprietary dependency.\n\n**Strongest signals:** Clear willingness-to-pay exists — multiple funded incumbents at $29–$179/mo prove the market pays. The multi-account organization angle is a real friction point that existing tools handle poorly at the UX layer (most are generic file request tools).\n\n**Weakest signals:** Only 2 Reddit posts, both in low-upvote threads — thin demand signal. More critically, the space is saturated: TaxDome (full suite, ~$50/user/mo), Canopy ($88/user/mo), Liscio ($49/user/mo), Content Snare ($29–$179/mo), Client Hub (bookkeeping-specific), Hubdoc (Xero-owned, receipt capture), and Dext (AI receipt capture) all compete here. These have brand trust baked in — accounting firms are risk-averse about where client financial data lives and will not easily switch to an unknown solo-dev product.\n\n**Top competitors:** (1) **Content Snare** — $29–$179/mo, closest to the document-request-portal concept, generic but usable for accountants. (2) **Client Hub** — built specifically for bookkeeping workflows with uncategorized transaction resolution. (3) **TaxDome** — all-in-one practice management with portal; dominant in the tax/bookkeeping CRM space. All three have established customer bases and brand trust that a solo dev would take years to overcome.\n\n**Verdict: Pass.** The willingness-to-pay signal is real but the competition moat is overwhelming for a solo dev. With only 2 signals and 10+ funded incumbents already serving this exact pain point, the CAC would be punishing (accounting firms buy on trust and referrals, not SEO). The LEAP/IOLTA sub-niche is too small to anchor a product around. Investigate only if you have a warm channel into a bookkeeping community (e.g., you're already trusted there).",
+      "researchedAt": "2026-04-24T19:00:03.844Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wish for a client management software that allows clients to easily upload bank statements and receipts organized by multiple accounts."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wishes for an integration between LEAP client registers and bookkeeping tools like QBO."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc620132xwpgknaul30m",
+      "title": "Bookkeeping Consistency Enforcer for Small Businesses / Bookkeepers",
+      "oneLiner": "An automated tool that detects and corrects inconsistent categorization and coding mistakes in bookkeeping records over time.",
+      "niche": "bookkeeper",
+      "status": "candidate",
+      "score": 0.4499999999999993,
+      "soloDevScore": 3.5,
+      "demandScore": 3,
+      "monetizationScore": 5,
+      "competitionScore": 8.5,
+      "estMrrCeiling": 5000,
+      "estCacBand": "medium",
+      "notes": "**The problem.** Bookkeepers and small-business owners drift in how they categorize recurring transactions — same vendor gets coded to different accounts across months, or a rule applied in January gets forgotten by March. The wish is for a system that catches and auto-corrects this before it snowballs into a cleanup project.\n\n**Target user.** Part-time bookkeepers managing 5-20 small-business clients on QuickBooks Online or Xero, and small-business owners doing their own books who lack accounting training.\n\n**What you'd build.** A plugin or standalone app that connects to QBO/Xero via OAuth, scans transaction history for coding inconsistencies (same payee → multiple accounts, unusual category for amount range, month-over-month variance spikes), surfaces them in a review queue, and optionally auto-fixes with user approval. Core value: rule learning over time from the user's own patterns.\n\n**Strongest signal / weakest signal.** The weakest signal is the cluster itself — only 2 Reddit posts, both framed as vague wishes with zero pricing mentions. Real demand requires pain that bleeds money; 'inconsistency' is annoying but not always urgent. Strongest signal is the category: adjacent tools (Booke AI at $129/mo/business, Dext, Zeni) command real revenue, proving WTP exists somewhere in the bookkeeping automation space.\n\n**Top competitors.** (1) **Booke AI** ($129/mo/business) — explicitly markets 'inconsistencies and error detection' as a feature, logs into QBO/Xero daily and flags discrepancies; this is nearly identical to the wish. (2) **QuickBooks built-in Anomaly Detection** — free for QBO subscribers, already does AI-powered inconsistency flagging over 12+ months of data. (3) **Dext** — auto-categorizes and flags duplicates/unusual entries before they hit the books, deep QBO/Xero integration.\n\n**Verdict: Pass.** Booke AI already sells the exact product described in these signals. QuickBooks native anomaly detection covers the baseline need for free. A solo dev would be competing against a funded SaaS (Booke AI) that has QBO/Xero integrations already built and a clear brand in this space. The signal cluster is also extremely thin — two Reddit posts with no WTP language. The QBO/Xero API surface is manageable but accounting domain expertise and trust-building with bookkeeper clients would be slow. Not a ship or investigate; this is a pass.",
+      "researchedAt": "2026-04-24T19:00:50.184Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wishing for a system that prevents inconsistencies in bookkeeping practices over time."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool that automatically corrects and guides bookkeeping mistakes."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc6j013sxwpgzlj1ut71",
+      "title": "AI-Powered Invoice & Receipt Ingestion for Independent Bookkeepers",
+      "oneLiner": "Automated OCR pipeline that ingests, sorts, and names high-volume invoices/receipts directly into a bookkeeper's workflow.",
+      "niche": "bookkeepers",
+      "status": "candidate",
+      "score": 1.4499999999999993,
+      "soloDevScore": 4.5,
+      "demandScore": 3,
+      "monetizationScore": 7,
+      "competitionScore": 8.5,
+      "estMrrCeiling": 4000,
+      "estCacBand": "medium",
+      "notes": "**The problem.** Bookkeepers handling high-volume clients (e.g., restaurants, contractors) receive hundreds of loose invoices and receipts monthly. Manual scanning, renaming, and sorting into accounting software is the single most complained-about workflow bottleneck in r/Bookkeeping.\n\n**Target user.** Independent bookkeepers or small bookkeeping practices (1–5 people) billing $500–$3k/client/month who manage 5–20 clients. They already pay for Xero/QBO and are accustomed to monthly SaaS fees.\n\n**What you'd build.** An email/dropbox ingest endpoint that receives raw scans, runs OCR (Google Document AI or AWS Textract), extracts vendor/date/amount, auto-renames files, and pushes structured data to Xero/QBO via API. Optionally: a simple client-facing mobile upload app.\n\n**Strongest signals.** Willingness-to-pay is proven — Dext charges $34–$100/mo (business) and $39+/user/mo (practice plans), and bookkeepers actively use it. The pain is real and recurring. A niche-differentiated alternative (cheaper, simpler, better bulk handling) could win early customers organically through Reddit/accounting communities.\n\n**Weakest signals.** The signal cluster here is thin — only one Reddit thread, no explicit \"I wish X existed\" or \"I'd pay $Y for this.\" More importantly, the space is *extremely* saturated: Dext, Hubdoc (free with Xero), AutoEntry, Datamolino, Tofu, Parsio, and Veryfi all compete directly. QBO and Xero bundle basic receipt capture natively. Differentiation is genuinely hard without a meaningfully better extraction model or a workflow angle incumbents have ignored.\n\n**Top competitors.** Dext ($34–$100/mo), Hubdoc (bundled free with Xero), Datamolino (~$59/mo). All are established, well-distributed through accounting partner channels that are slow for a solo dev to penetrate.\n\n**Verdict: pass.** The pain is real and monetizable, but the market is crowded with funded incumbents who already have accounting software integrations and partner networks. The Reddit signal is too thin to confirm a gap, and a solo dev would struggle to win distribution against Hubdoc's free tier and Dext's brand recognition. Only worth revisiting if a specific, unserved workflow angle (e.g., high-volume paper-first industries like food service or construction) is validated through direct user interviews.",
+      "researchedAt": "2026-04-24T19:01:41.098Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Manual scanning and sorting of large volumes of invoices and receipts is time-consuming."
+        },
+        {
+          "kind": "workflow",
+          "summary": "Manual scanning and PDF management for large volumes of invoices is slow and cumbersome."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc8s017dxwpgk9y0vaon",
+      "title": "Etsy Seller Inbox Auto-Reply / Response Management",
+      "oneLiner": "Help Etsy sellers maintain Star Seller status by auto-responding and triaging buyer messages.",
+      "niche": "etsy-seller",
+      "status": "candidate",
+      "score": 0.44999999999999973,
+      "soloDevScore": 5,
+      "demandScore": 2,
+      "monetizationScore": 3,
+      "competitionScore": 7,
+      "estMrrCeiling": 3000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** Etsy's Star Seller program requires sellers to reply to 95% of first messages within 24 hours. Sellers who miss this lose their badge and ranking. Buyers get frustrated by silence; sellers risk algorithmic demotion. The pain is real on both sides.\n\n**Target user:** Small/mid-volume Etsy sellers (~100–500 orders/mo) who run solo shops and can't always respond same-day. The buyer-side signal here has zero monetization path — buyers won't pay to chase sellers. The viable angle is seller-side tooling.\n\n**What you'd actually build:** An Etsy-connected inbox assistant: smart auto-reply with order context injection, templated quick replies, daily digest/mobile push for unanswered threads, and response-rate dashboard. The Etsy API supports message access via OAuth.\n\n**Weakest signals:** The two signals come from a single Reddit post, both from the buyer's perspective — no seller expressing frustration or asking for a tool, and zero willingness-to-pay signal in this cluster. The cluster is thin and low-quality.\n\n**Top competitors with pricing:**\n- **Alura** ($29.99/mo) — full Etsy seller platform including an AI assistant (Ava) that handles customer queries; direct overlap.\n- **eDesk** — multi-channel helpdesk with Etsy integration; SMB pricing ~$89+/mo.\n- **Etsy native tools (free)** — Etsy itself now offers auto-reply for off-hours, 250 quick replies, and an AI writing assistant built into the seller dashboard. This is the hardest competition: free and zero-friction.\n\n**Verdict: Pass.** Etsy is actively building this natively (free), Alura has a broad foothold at $30/mo, and the signal cluster is a single buyer-frustration post with no seller WTP. Even if you shipped a polished inbox tool, Etsy's own roadmap would undercut it. Not worth pursuing.",
+      "researchedAt": "2026-04-24T19:02:29.567Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Etsy sellers may ignore messages and delay responses, causing significant inconvenience."
+        },
+        {
+          "kind": "current_spend",
+          "summary": "Users waste time trying to communicate with unresponsive Etsy sellers."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zc96017yxwpgxwkymbjy",
+      "title": "Early User Acquisition Platform for Solo SaaS / Shopify App Founders",
+      "oneLiner": "A tool that helps early-stage founders find and convert their first paying users without a marketing team.",
+      "niche": "saas-founders",
+      "status": "candidate",
+      "score": 1.1999999999999993,
+      "soloDevScore": 5,
+      "demandScore": 3,
+      "monetizationScore": 3,
+      "competitionScore": 6,
+      "estMrrCeiling": 5000,
+      "estCacBand": "medium",
+      "notes": "**The problem:** Early-stage founders ship a working product and then hit a wall — no distribution, no audience, no playbook. The pain is real and universal, but the two signals here are Reddit threads asking for *advice*, not requesting a specific software tool. This is a critical distinction: the gap is strategy and knowledge, not missing tooling.\n\n**Target user:** A solo or micro-team SaaS founder or Shopify app developer who has launched but has zero or single-digit users. They're typically technical, cost-sensitive, and will exhaust free options (Product Hunt, Indie Hackers, BetaList, Reddit posts) before paying for anything.\n\n**What you'd actually build:** Options include a curated early-adopter matching platform (founders post, beta users opt in), an automated outreach tool mining Reddit/Hacker News for warm leads (ProblemSifter already does this), or a guided \"first 100 users\" campaign kit. All three have serious chicken-and-egg or commoditization problems.\n\n**Strongest signals:** The pain is pervasive and crops up constantly in founder communities. There's genuine frustration and market size is large. BetaList charges ~$129 for a featured listing, showing *some* WTP.\n\n**Weakest signals:** Only 2 source posts, both asking for advice/opinions — no one is saying \"I'd pay $X/mo for a tool that does Y.\" The pain is generic enough that solving it with software is hard to differentiate. Most founders default to free channels and communities, not SaaS subscriptions.\n\n**Top competitors:** Product Hunt (free + paid promotion), BetaList ($129 one-time featured), IndieHackers/communities (free), AppSumo Deals (revenue share), and ProblemSifter (Reddit lead mining, early pricing). The space isn't dominated by one funded giant but is thoroughly covered by free-tier options that depress WTP.\n\n**Verdict: Pass.** The pain is real but the signal cluster is too thin, too advice-seeking, and too generic to justify building a paid tool. Founders in this state resist paying until they have revenue themselves. MRR ceiling is low given intense free competition. Investigate only if you can find 5+ posts where founders explicitly name a *tool gap* and mention a price they'd pay.",
+      "researchedAt": "2026-04-24T19:03:23.993Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Struggling to acquire initial users despite having a working product."
+        },
+        {
+          "kind": "pain",
+          "summary": "Struggling to attract initial users despite having a functional tool."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zcbq01brxwpgs8x743s0",
+      "title": "AI Scope Creep Detector for Software Agencies & Freelancers",
+      "oneLiner": "Monitors client communications against the original contract and flags out-of-scope requests before they become unpaid work.",
+      "niche": "software-agency",
+      "status": "candidate",
+      "score": 4.749999999999999,
+      "soloDevScore": 7,
+      "demandScore": 4,
+      "monetizationScore": 7,
+      "competitionScore": 3,
+      "estMrrCeiling": 14000,
+      "estCacBand": "low",
+      "notes": "**The problem.** Scope creep is a genuine, recurring pain for freelance developers and small agencies: 57% reportedly lose $1k–$5k/month to unbilled out-of-scope work, and most absorb it rather than confront the client. The core ask is simple — something that reads the original contract, watches incoming messages, and surfaces a flag when a request drifts outside agreed scope.\n\n**What you'd build.** An AI layer that ingests a signed SOW/contract (PDF or text), then connects to one or two communication channels (email via Gmail/Outlook API, or Slack). A background job runs new messages against the embedded contract scope and generates a 'scope alert' with a suggested response template. Optional: a change-order generator that turns the alert into a billable amendment. This is a straightforward LLM + embeddings pipeline — buildable solo in 4–6 weeks for a tight MVP.\n\n**Demand signal quality.** The two source signals are both Reddit posts from what appears to be the same person running their own validation thread — not two independent users expressing pain. That is a weak cluster. The broader market stats (57% loss rate) are real but come from B2B surveys, not active software-purchase intent. Demand exists, but this cluster doesn't prove it strongly.\n\n**Monetization.** The ROI story is unusually clear: one prevented scope incident ($300–$1,000 in recovered billing) pays for a year of subscription at $20–30/mo. Adjacent tools (Bonsai $24/mo, Moxie $12–40/mo, Plutio $19–39/mo) confirm willingness to pay in this price band. Users are already paying for weaker substitutes.\n\n**Competition.** The space is early but moving fast. ScopeShield launched February 2026 at $20/mo as a direct competitor. Bonsai, Moxie, and Plutio address adjacent workflow needs but treat scope enforcement as a footnote. General PM giants (Asana, Jira) are not a real threat at this price point for solo agencies. The window is narrow — not closed.\n\n**Verdict: investigate.** Do not build yet. First, confirm ScopeShield has real paying customers (check their public Product Hunt launch, indie hacker posts, or reach out). If they have <100 paying users after 2+ months, the market exists but execution is still up for grabs. Differentiation path: go deeper on Gmail/Slack native integration and auto-drafted change orders, which ScopeShield's $20/mo MVP likely skips. If validation comes back positive, ship.",
+      "researchedAt": "2026-04-24T19:04:20.951Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "pain",
+          "summary": "Software agencies struggle with scope creep as clients request 'small changes' that turn into unpaid work."
+        },
+        {
+          "kind": "pain",
+          "summary": "Software agencies struggle with scope creep as clients request 'small changes' that turn into unpaid work."
+        }
+      ]
+    },
+    {
+      "id": "cmod8zcbr01btxwpgvat26ng8",
+      "title": "AI Scope Creep Detector + Change Order Drafter for Software Agencies",
+      "oneLiner": "Monitors project communications against agreed scope and auto-drafts change orders when clients request out-of-scope work.",
+      "niche": "software-agency",
+      "status": "candidate",
+      "score": 4.3,
+      "soloDevScore": 5.5,
+      "demandScore": 4,
+      "monetizationScore": 7,
+      "competitionScore": 3,
+      "estMrrCeiling": 16000,
+      "estCacBand": "medium",
+      "notes": "**The problem.** Scope creep is a documented profit killer — 57% of agencies reportedly lose $1k–$5k/month to unbilled out-of-scope work, and 78% rarely or never charge for it. The core pain is detection lag: a client emails a new feature request, an agency PM treats it as a favor, and no change order ever gets raised. An AI layer that reads incoming requests against the original SOW and drafts a pre-filled change order would compress a 2-hour conversation into a 2-minute approval.\n\n**Target user.** 5–30 person software agencies and freelance developers who run fixed-price or retainer engagements and use Jira, Trello, or ClickUp as their source of truth. They already pay $20–$50/mo for niche agency tools (Bonsai, Moxie, Plutio), so price sensitivity is low when the tool pays for itself by recapturing a single out-of-scope hour.\n\n**What you'd actually build.** Scope ingestion (paste SOW or upload PDF), then an email/webhook bridge to Jira/ClickUp that runs each new issue or message through an LLM comparison against the stored scope. Flagged items get a drafted change order (PDF or inline Jira comment) ready to send. V1 could be email-only, no PM integrations needed to validate.\n\n**Strongest signal.** ScopeShield launched February 2026 at $20/mo, independently confirming someone already bet real time on this gap. The revenue-protection framing gives clear ROI — a $30/mo tool that recovers one $500 billable hour per month is a no-brainer sell. WTP is well-anchored by adjacent tools at $19–$39/mo.\n\n**Weakest signal.** The two source Reddit posts appear to be the same person posting in two subreddits on the same day — this is one data point, not independent validation. The cluster strength is low. ScopeShield's head start (MVP already shipped with AI contract analysis + email gateway) means the window for being first is closed; you'd need a differentiation angle (deeper PM integrations, better accuracy, agency-specific change order templates).\n\n**Top competitors.** ScopeShield ($20/mo, Feb 2026 MVP — no integrations yet); Bonsai ($24/mo — contracts + invoicing, no AI scope detection); Moxie ($12–40/mo — freelancer ops, no scope monitoring). No well-funded incumbent owns this niche yet.\n\n**Verdict: investigate.** The problem is real and the monetization story is clean, but the demand cluster here is weak (one person, two posts). Before building, spend a week in agency Slack groups and r/freelance to find 5 independent people describing this pain and willing to pay. If you find them, the integration surface (ClickUp API + OpenAI) is 3–4 weeks of work to a shippable V1. If ScopeShield is still feature-sparse, differentiate on PM-native integrations rather than email-only.",
+      "researchedAt": "2026-04-24T19:05:21.165Z",
+      "evidenceSignalSummaries": [
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool to automatically detect out-of-scope requests and draft change orders in Jira/Trello/ClickUp."
+        },
+        {
+          "kind": "wish",
+          "summary": "Wish for a tool to automatically detect out-of-scope requests and draft change orders in Jira/Trello/ClickUp."
+        }
+      ]
+    }
+  ]
+}

@@ -4,19 +4,47 @@
 /// that signal as its seed.
 ///
 /// This is deliberately simple — no HDBSCAN, no refinement passes. At <100k
-/// signals it runs in-memory in a few seconds, and any clustering mistake gets
-/// corrected on re-run since we never "lock" a signal to a cluster permanently
-/// (we just skip already-linked signals).
+/// signals it runs in-memory in a few seconds.
 ///
-/// Run: `pnpm pipeline:cluster [--threshold 0.82]`
+/// Run:
+///   pnpm pipeline:cluster                        # default threshold 0.76
+///   pnpm pipeline:cluster --threshold 0.78       # stricter
+///   pnpm pipeline:cluster --reset                # wipe + rebuild, preserves
+///                                                #   researched opps as anchors
+///
+/// --reset semantics: deletes Opportunities where researchedAt IS NULL (and
+/// their Evidence, via cascade). Researched opps keep their centroid + signals,
+/// so they act as anchors when re-clustering with a new threshold.
 
 import "dotenv/config";
 import { prisma } from "@/lib/db";
-import { cosine, floatsFromBuffer, buffersFromFloats, updatedCentroid } from "@/lib/similarity";
+import {
+  cosine,
+  floatsFromBuffer,
+  buffersFromFloats,
+  updatedCentroid,
+} from "@/lib/similarity";
 
 async function run() {
   const threshArg = process.argv.indexOf("--threshold");
-  const threshold = threshArg >= 0 ? Number(process.argv[threshArg + 1] ?? 0.82) : 0.82;
+  const threshold = threshArg >= 0 ? Number(process.argv[threshArg + 1] ?? 0.76) : 0.76;
+  const reset = process.argv.includes("--reset");
+
+  if (reset) {
+    const researched = await prisma.opportunity.count({
+      where: { researchedAt: { not: null } },
+    });
+    const doomed = await prisma.opportunity.count({
+      where: { researchedAt: null },
+    });
+    console.log(
+      `[cluster] --reset: deleting ${doomed} unresearched opportunities (preserving ${researched} researched as anchors)`,
+    );
+    const del = await prisma.opportunity.deleteMany({
+      where: { researchedAt: null },
+    });
+    console.log(`[cluster] --reset: deleted ${del.count} opportunities (Evidence cascaded)`);
+  }
 
   // Load existing opportunities w/ centroid + member count
   const opportunities = await prisma.opportunity.findMany({
@@ -41,7 +69,9 @@ async function run() {
     include: { rawPost: true },
     orderBy: { createdAt: "asc" },
   });
-  console.log(`[cluster] ${signals.length} unlinked signals; ${clusters.length} existing clusters`);
+  console.log(
+    `[cluster] threshold=${threshold.toFixed(2)}  ${signals.length} unlinked signals, ${clusters.length} existing clusters`,
+  );
 
   let attached = 0;
   let created = 0;

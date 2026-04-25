@@ -101,43 +101,7 @@ export default async function OpportunityPage({
       )}
 
       <section>
-        <h2 className="text-sm uppercase tracking-wide text-zinc-500 mb-2">
-          evidence ({opp.evidence.length})
-        </h2>
-        <ul className="border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-800">
-          {opp.evidence.map((e) => {
-            const s = e.signal;
-            return (
-              <li key={e.id} className="px-4 py-3">
-                <div className="flex items-baseline justify-between gap-3 text-sm">
-                  <span className="font-mono text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                    {s.kind}
-                  </span>
-                  <span className="text-xs text-zinc-500 font-mono">
-                    sim {e.weight.toFixed(2)} · {s.rawPost.source.name}
-                  </span>
-                </div>
-                <p className="mt-1">{s.summary}</p>
-                <div className="mt-1 flex flex-wrap gap-2 text-xs text-zinc-500">
-                  {s.nicheTags
-                    .split(",")
-                    .filter(Boolean)
-                    .map((t) => (
-                      <span key={t} className="font-mono">#{t}</span>
-                    ))}
-                  <a
-                    href={s.rawPost.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    source ↗
-                  </a>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <EvidenceList evidence={opp.evidence} />
       </section>
     </div>
   );
@@ -164,5 +128,103 @@ function Scorecard({
       <div className="text-xs uppercase tracking-wide text-zinc-500">{label}</div>
       <div className="font-mono text-2xl font-semibold tabular-nums">{value}</div>
     </div>
+  );
+}
+
+type EvidenceItem = {
+  id: string;
+  weight: number;
+  signal: {
+    kind: string;
+    summary: string;
+    nicheTags: string;
+    rawPost: {
+      id: string;
+      url: string;
+      title: string | null;
+      source: { name: string };
+    };
+  };
+};
+
+/// Groups evidence by source post so the same Reddit thread doesn't appear as
+/// N separate "independent" cards. Multi-signal posts (e.g. one yielding both a
+/// `pain` and a `wish`) collapse into a single card listing all facets.
+function EvidenceList({ evidence }: { evidence: EvidenceItem[] }) {
+  const byPost = new Map<string, EvidenceItem[]>();
+  for (const e of evidence) {
+    const arr = byPost.get(e.signal.rawPost.id);
+    if (arr) arr.push(e);
+    else byPost.set(e.signal.rawPost.id, [e]);
+  }
+  for (const arr of byPost.values()) {
+    arr.sort((a, b) => b.weight - a.weight);
+  }
+  const groups = [...byPost.values()].sort(
+    (a, b) => Math.max(...b.map((e) => e.weight)) - Math.max(...a.map((e) => e.weight)),
+  );
+
+  const signalCount = evidence.length;
+  const postCount = groups.length;
+  const header =
+    signalCount === postCount
+      ? `evidence (${postCount} post${postCount === 1 ? "" : "s"})`
+      : `evidence (${signalCount} signals from ${postCount} post${postCount === 1 ? "" : "s"})`;
+
+  return (
+    <>
+      <h2 className="text-sm uppercase tracking-wide text-zinc-500 mb-2">{header}</h2>
+      <ul className="border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-800">
+        {groups.map((group) => {
+          const post = group[0]!.signal.rawPost;
+          return (
+            <li key={post.id} className="px-4 py-3">
+              <div className="flex items-baseline justify-between gap-3 text-xs text-zinc-500 font-mono">
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline truncate"
+                >
+                  {post.title ?? post.url} ↗
+                </a>
+                <span className="shrink-0">
+                  {post.source.name}
+                  {group.length > 1 ? ` · ${group.length} signals` : ""}
+                </span>
+              </div>
+              <ul className="mt-2 space-y-2">
+                {group.map((e) => {
+                  const s = e.signal;
+                  return (
+                    <li key={e.id} className="border-l-2 border-zinc-200 dark:border-zinc-700 pl-3">
+                      <div className="flex items-baseline justify-between gap-3 text-sm">
+                        <span className="font-mono text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+                          {s.kind}
+                        </span>
+                        <span className="text-xs text-zinc-500 font-mono shrink-0">
+                          sim {e.weight.toFixed(2)}
+                        </span>
+                      </div>
+                      <p className="mt-1">{s.summary}</p>
+                      {s.nicheTags ? (
+                        <div className="mt-1 flex flex-wrap gap-2 text-xs text-zinc-500">
+                          {s.nicheTags
+                            .split(",")
+                            .filter(Boolean)
+                            .map((t) => (
+                              <span key={t} className="font-mono">#{t}</span>
+                            ))}
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }

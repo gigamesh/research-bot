@@ -47,8 +47,12 @@ No API key required. Token cost of running the pipeline: **$0**.
 ```bash
 brew install ollama
 ollama serve &                     # or run it as a background service
-ollama pull nomic-embed-text       # 274 MB
+ollama pull mxbai-embed-large      # 669 MB, 1024-dim. Strong paraphrase recognition.
 ```
+
+Override with a different model via `OLLAMA_EMBED_MODEL` in `.env`. Note that
+swapping models invalidates existing embeddings + clusters — use
+`pnpm pipeline:embed --reset` to rebuild.
 
 Ollama listens on `http://127.0.0.1:11434`. Override with `OLLAMA_HOST` if needed.
 
@@ -107,7 +111,8 @@ pnpm dev                           # open http://localhost:3000
 ```bash
 pnpm pipeline:signals --limit 20         # extract signals from new RawPosts
 pnpm pipeline:embed                      # embed all unembedded signals
-pnpm pipeline:cluster --threshold 0.82   # cosine clustering into Opportunities
+pnpm pipeline:cluster --threshold 0.76   # cosine clustering into Opportunities
+pnpm pipeline:cluster --reset            # wipe unresearched opps + rebuild
 pnpm pipeline:research --limit 5         # Claude researches + scores candidates
 ```
 
@@ -159,7 +164,7 @@ want the cleanest signal set.
 
 1. **Claude via Agent SDK subscription** — zero marginal cost for signal
    extraction and research.
-2. **Local Ollama embeddings** — zero cost, ~200ms/signal on Apple Silicon.
+2. **Local Ollama embeddings** — zero cost, ~300ms/signal on Apple Silicon (mxbai-embed-large, 1024-dim).
 3. **Pain-regex pre-filter** (`scripts/lib/source.ts`) — only posts matching
    "I wish…", "is there a tool…", "spend $X", etc. reach Claude.
 4. **Prompt caching** — the scoring rubric is in a cacheable system prompt.

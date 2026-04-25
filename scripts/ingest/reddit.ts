@@ -6,82 +6,54 @@
 /// Only env var used (and only for politeness — Reddit doesn't enforce it):
 ///   REDDIT_USER_AGENT=research-bot/0.1 by <your-reddit-username>
 ///
-/// Run: `pnpm ingest:reddit [--subreddit SaaS] [--limit 50]`
+/// Run: `pnpm ingest:reddit [--subreddit SaaS] [--limit 100]`
+/// Reddit caps unauthenticated requests at 100 posts; values above 100 are
+/// clamped in fetchSub().
 
 import { prisma } from "@/lib/db";
 import "dotenv/config";
 import { ensureSource, looksLikePain } from "../lib/source";
 
-/// Curated to favor subs where posters are themselves business owners or
-/// high-income professionals complaining about their tooling / workflows.
-/// Some may 403 (private or quarantined); the script handles that — the
-/// warning just shows up in the run log. Trim what you don't want.
+/// Narrow, high-density list. Each sub is picked for high proportion of
+/// business owners / high-WTP professionals — depth > breadth.
+///
+/// Expanded lists (medspa, CPA, weddingplanning, etc.) tend to 403, be low
+/// volume, or drift consumer. Start with this 18-sub core; add more only if
+/// clustering later shows you need more density in a specific vertical.
 const DEFAULT_SUBS = [
-  // Founders / operators (strong baseline)
-  "SaaS",
-  "Entrepreneur",
+  // Founders / operators
+  "sweatystartup", // service-business entrepreneurship, highest signal
   "smallbusiness",
-  "startups",
-  "sweatystartup", // service-business entrepreneurship, high-signal
-  "EntrepreneurRideAlong",
+  "Entrepreneur",
+  "SaaS",
 
-  // E-commerce sellers (pay for apps to scale/automate)
-  "Etsy",
-  "AmazonFBA",
-  "shopify",
-  "FulfillmentByAmazon",
-
-  // Creators / content businesses
-  "freelance",
-  "Design",
-  "PartneredYoutube",
-  "podcasting",
-  "WeddingPhotography",
-
-  // Skilled trades (classic vertical-SaaS targets: jobs, invoicing, CRM)
+  // Skilled trades (classic vertical-SaaS targets)
   "HVAC",
   "electricians",
   "plumbing",
-  "Contractor",
-  "Roofing",
   "Landscaping",
-  "cleaning",
 
-  // Real estate / hospitality
-  "realtors",
-  "RealEstate",
-  "realestateinvesting",
-  "propertymanagement",
-  "AirBnB",
-
-  // Healthcare professionals (high willingness-to-pay, software is notoriously bad)
+  // Healthcare pros (high WTP, bad incumbent software)
   "dentistry",
   "physicaltherapy",
-  "personaltraining",
-  "optometry",
   "chiropractic",
-  "medspa",
+  "optometry",
 
-  // Food & hospitality businesses
-  "Chefit",
-  "AskCulinary",
-  "KitchenConfidential",
-  "restaurantowners",
+  // Real estate
+  "realtors",
+  "realestateinvesting",
+  "propertymanagement",
 
-  // Finance / accounting pros
-  "Accounting",
-  "bookkeeping",
-  "CPA",
-  "taxpros",
-
-  // Events / weddings
-  "weddingplanning",
-  "EventPlanners",
+  // E-commerce sellers
+  "AmazonFBA",
+  "shopify",
+  "Etsy",
 ];
 
 /// Respect Reddit's unauthenticated rate limit (~10 req/min). 6.5s between
 /// calls keeps us safely under it and avoids 429s.
 const SUB_DELAY_MS = 6500;
+const REDDIT_POST_LIMIT = 100;
 
 type RedditPost = {
   id: string;
@@ -157,7 +129,10 @@ async function run() {
     subArg >= 0 && process.argv[subArg + 1]
       ? [process.argv[subArg + 1]!]
       : DEFAULT_SUBS;
-  const limit = limitArg >= 0 ? Number(process.argv[limitArg + 1] ?? 50) : 50;
+  const limit =
+    limitArg >= 0
+      ? Number(process.argv[limitArg + 1] ?? REDDIT_POST_LIMIT)
+      : REDDIT_POST_LIMIT;
 
   const sourceId = await ensureSource("reddit", { subs: DEFAULT_SUBS });
 

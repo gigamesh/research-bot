@@ -82,8 +82,15 @@ async function run() {
   const limitArg = process.argv.indexOf("--limit");
   const minArg = process.argv.indexOf("--min-signals");
   const limit = limitArg >= 0 ? Number(process.argv[limitArg + 1] ?? 5) : 5;
-  const minSignals = minArg >= 0 ? Number(process.argv[minArg + 1] ?? 2) : 2;
+  // --min-signals filters on DISTINCT POSTS, not raw signals. The flag name
+  // stays for backward compatibility, but the semantics measure independent
+  // confluence (different posters complaining about the same thing) instead
+  // of being inflatable by a single ranty post that yielded multiple signals.
+  const minPosts = minArg >= 0 ? Number(process.argv[minArg + 1] ?? 2) : 2;
 
+  // Sort by signal count desc — clusters with more confluence are stronger
+  // opportunities and should consume our Claude budget first. Secondary sort
+  // by createdAt asc keeps re-runs deterministic across ties.
   const opps = await prisma.opportunity.findMany({
     where: { researchedAt: null, status: "candidate" },
     include: {
@@ -93,12 +100,17 @@ async function run() {
       },
       _count: { select: { evidence: true } },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ evidence: { _count: "desc" } }, { createdAt: "asc" }],
   });
 
-  const eligible = opps.filter((o) => o._count.evidence >= minSignals).slice(0, limit);
+  const eligible = opps
+    .filter((o) => {
+      const distinctPosts = new Set(o.evidence.map((e) => e.signal.rawPostId));
+      return distinctPosts.size >= minPosts;
+    })
+    .slice(0, limit);
   console.log(
-    `[research] ${eligible.length} opportunities to research (of ${opps.length} candidates; min-signals=${minSignals})`,
+    `[research] ${eligible.length} opportunities to research (of ${opps.length} candidates; min-posts=${minPosts})`,
   );
 
   for (const opp of eligible) {
