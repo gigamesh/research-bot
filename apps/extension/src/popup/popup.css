@@ -1,0 +1,70 @@
+:root {
+  color-scheme: light dark;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+}
+body {
+  margin: 0;
+  padding: 12px 14px;
+  width: 280px;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.on { background: #22c55e; }
+.dot.off { background: #94a3b8; }
+.dot.err { background: #ef4444; }
+section {
+  margin-bottom: 8px;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+}
+.row:last-child { border-bottom: 0; }
+.label { opacity: 0.7; }
+#error {
+  background: color-mix(in oklab, #ef4444 12%, transparent);
+  border-left: 2px solid #ef4444;
+  padding: 6px 8px;
+  border-radius: 2px;
+  font-size: 12px;
+  word-break: break-word;
+}
+#actions {
+  display: flex;
+  gap: 6px;
+}
+button {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+}
+button:hover { background: color-mix(in oklab, currentColor 8%, transparent); }
+footer {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 6px;
+  line-height: 1.4;
+}

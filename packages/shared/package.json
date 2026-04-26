@@ -1,0 +1,20 @@
+{
+  "name": "@research-bot/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./upwork": "./src/upwork.ts",
+    "./crawl": "./src/crawl.ts"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@research-bot/tsconfig": "workspace:*",
+    "typescript": "^5"
+  }
+}

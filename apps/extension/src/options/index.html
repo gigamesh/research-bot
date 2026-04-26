@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>research-bot — settings</title>
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>research-bot — Upwork capture</h1>
+      <p class="lede">
+        Settings sync across your Chrome profiles via <code>storage.sync</code>.
+        The default endpoint points at a locally-running research-bot instance.
+      </p>
+
+      <form id="settings">
+        <label>
+          <span>Endpoint</span>
+          <input type="url" name="endpoint" placeholder="http://localhost:3000/api/ingest/upwork" required />
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" name="enabled" />
+          <span>Capture enabled</span>
+        </label>
+
+        <fieldset>
+          <legend>Capture which page types</legend>
+          <label class="checkbox"><input type="checkbox" name="capture-job-search" /><span>Job search results</span></label>
+          <label class="checkbox"><input type="checkbox" name="capture-job-detail" /><span>Job detail pages</span></label>
+          <label class="checkbox"><input type="checkbox" name="capture-category-feed" /><span>Category / find-work feeds</span></label>
+        </fieldset>
+
+        <button type="submit">Save</button>
+        <span id="saved" class="saved" hidden>Saved.</span>
+      </form>
+    </main>
+
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

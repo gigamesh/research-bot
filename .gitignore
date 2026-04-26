@@ -1,8 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -11,14 +11,20 @@
 !.yarn/versions
 
 # testing
-/coverage
+coverage
 
 # next.js
-/.next/
-/out/
+.next/
+out/
+
+# extension build output
+apps/extension/dist/
+
+# turbo
+.turbo
 
 # production
-/build
+build
 
 # misc
 .DS_Store
@@ -40,12 +46,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
+# generated prisma client
+apps/web/src/generated/prisma
 
 # local sqlite
-/prisma/dev.db
-/prisma/dev.db-journal
-/prisma/dev.db-wal
-/prisma/dev.db-shm
-/prisma/migrations/dev/
+apps/web/prisma/dev.db
+apps/web/prisma/dev.db-journal
+apps/web/prisma/dev.db-wal
+apps/web/prisma/dev.db-shm
+apps/web/prisma/migrations/dev/
 
+# user-generated backups
+apps/web/research-backup-*.json

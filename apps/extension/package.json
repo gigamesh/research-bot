@@ -1,0 +1,23 @@
+{
+  "name": "@research-bot/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome extension that captures Upwork job pages into research-bot",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@research-bot/shared": "workspace:*",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.34",
+    "@research-bot/tsconfig": "workspace:*",
+    "@types/chrome": "^0.0.279",
+    "typescript": "^5",
+    "vite": "^6.0.0"
+  }
+}

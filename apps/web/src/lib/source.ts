@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 
-/// Ensures a Source row exists and returns its id. Called by every ingest script.
+/// Ensures a Source row exists and returns its id. Called by every ingest path
+/// (HTTP route handlers + tsx scripts).
 export async function ensureSource(
   name: string,
   config?: Record<string, unknown>,

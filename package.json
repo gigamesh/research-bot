@@ -3,45 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
-    "db:seed": "tsx scripts/seed.ts",
-    "ingest:hn": "tsx scripts/ingest/hackernews.ts",
-    "ingest:reddit": "tsx scripts/ingest/reddit.ts",
-    "ingest:ph": "tsx scripts/ingest/producthunt.ts",
-    "pipeline:signals": "tsx scripts/pipeline/signals.ts",
-    "pipeline:embed": "tsx scripts/pipeline/embed.ts",
-    "pipeline:cluster": "tsx scripts/pipeline/cluster.ts",
-    "pipeline:research": "tsx scripts/pipeline/research.ts",
-    "inspect:clusters": "tsx scripts/pipeline/inspect-clusters.ts",
-    "pipeline:all": "pnpm pipeline:signals && pnpm pipeline:embed && pnpm pipeline:cluster && pnpm pipeline:research"
-  },
-  "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.119",
-    "@prisma/adapter-better-sqlite3": "^7.8.0",
-    "@prisma/client": "^7.8.0",
-    "better-sqlite3": "^12.9.0",
-    "graphql-request": "^7.4.0",
-    "next": "16.2.4",
-    "ollama": "^0.6.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "zod": "^4.3.6"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "web": "pnpm --filter @research-bot/web",
+    "extension": "pnpm --filter @research-bot/extension",
+    "db:migrate": "pnpm --filter @research-bot/web run db:migrate",
+    "db:studio": "pnpm --filter @research-bot/web run db:studio",
+    "db:seed": "pnpm --filter @research-bot/web run db:seed",
+    "ingest:hn": "pnpm --filter @research-bot/web run ingest:hn",
+    "ingest:reddit": "pnpm --filter @research-bot/web run ingest:reddit",
+    "ingest:ph": "pnpm --filter @research-bot/web run ingest:ph",
+    "pipeline:signals": "pnpm --filter @research-bot/web run pipeline:signals",
+    "pipeline:embed": "pnpm --filter @research-bot/web run pipeline:embed",
+    "pipeline:cluster": "pnpm --filter @research-bot/web run pipeline:cluster",
+    "pipeline:research": "pnpm --filter @research-bot/web run pipeline:research",
+    "pipeline:all": "pnpm --filter @research-bot/web run pipeline:all",
+    "inspect:clusters": "pnpm --filter @research-bot/web run inspect:clusters",
+    "crawl": "pnpm --filter @research-bot/web exec tsx scripts/crawl.ts"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "dotenv": "^17.4.2",
-    "prisma": "^7.8.0",
-    "tailwindcss": "^4",
-    "tsx": "^4.21.0",
-    "typescript": "^5"
+    "turbo": "^2.5.10"
   },
+  "packageManager": "pnpm@10.0.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@prisma/client",
@@ -50,5 +34,8 @@
       "esbuild",
       "prisma"
     ]
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -1,6 +1,12 @@
-# Upwork crawler — design notes (deferred)
+# Upwork crawler — original design notes
 
-**Status:** Design captured, not yet implemented. Pick up when Reddit/HN/PH output starts repeating itself, or when you want to validate willingness-to-pay on existing clusters.
+> **Status: implementation diverged.** What actually shipped is the CLI
+> (`pnpm crawl …`) + extension polling loop documented in the root
+> [README.md](../README.md#upwork-crawler). The architecture below ("server
+> returns a plan list, extension fetches it") is preserved here for the
+> *reasoning* — why Upwork, what filters matter, level-2 ideas — not for
+> the wire format. Treat the YAML spec and `/api/crawl-plan/upwork` references
+> in this file as historical.
 
 ## Why Upwork (and not "whatever I browse")
 

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>research-bot</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>research-bot</h1>
+      <span id="status-dot" class="dot off" aria-hidden="true"></span>
+    </header>
+
+    <section id="crawl">
+      <div class="row"><span class="label">Crawl</span><span id="crawl-state">idle</span></div>
+      <div class="row"><span class="label">Pending</span><span id="crawl-pending">0</span></div>
+      <div class="row"><span class="label">Done / failed</span><span id="crawl-tally">0 / 0</span></div>
+    </section>
+
+    <section id="summary">
+      <div class="row"><span class="label">Captured this session</span><span id="captured">0</span></div>
+      <div class="row"><span class="label">Last flush</span><span id="flushed">never</span></div>
+    </section>
+
+    <section id="error" hidden>
+      <strong>Error:</strong> <span id="error-text"></span>
+    </section>
+
+    <section id="actions">
+      <button id="open-options">Settings</button>
+    </section>
+
+    <footer>
+      Driven from the CLI: <code>pnpm crawl …</code>
+    </footer>
+
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

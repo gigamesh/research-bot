@@ -100,6 +100,50 @@ model Evidence {
   @@index([signalId])
 }
 
+/// Crawl-queue work item driven by the Chrome extension. Created by the
+/// `pnpm crawl …` CLI; claimed via /api/crawl/next with a short lease so a
+/// second extension instance can't double-process. `parentId` lets a
+/// search-page job spawn detail-page children once the search captures land.
+model CrawlJob {
+  id            String    @id @default(cuid())
+  kind          String    // "search-page" | "job-detail" | "category-feed"
+  url           String
+  status        String    @default("pending") // pending | running | done | failed
+  attempts      Int       @default(0)
+  leaseUntil    DateTime?
+  enqueuedAt    DateTime  @default(now())
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  error         String?
+  errorReason   String?   // "captcha" | "login_redirect" | "rate_limit" | "selector_drift" | "timeout" | "other"
+  itemsCaptured Int?
+  /// `--no-expand-detail` and similar CLI flags are persisted per-job so the
+  /// done handler knows whether to spawn children.
+  expandToDetail Boolean  @default(true)
+  parentId      String?
+  parent        CrawlJob? @relation("CrawlChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children      CrawlJob[] @relation("CrawlChildren")
+
+  @@index([status, enqueuedAt])
+  @@index([leaseUntil])
+  @@index([parentId])
+}
+
+/// Singleton config row controlling the crawler. The extension reads this on
+/// every poll so the CLI can pause/resume without a restart.
+model CrawlConfig {
+  id              String   @id @default("singleton")
+  paused          Boolean  @default(false)
+  pauseReason     String?
+  /// Throttle window between page navigations, in ms. The extension picks a
+  /// uniform-random delay in [throttleMinMs, throttleMaxMs] before each load.
+  throttleMinMs   Int      @default(5000)
+  throttleMaxMs   Int      @default(9000)
+  /// Default for newly enqueued search-page jobs when no flag is given.
+  expandToDetail  Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
 /// Async job queue. Pipeline stages write here for observability; the dashboard shows counts.
 model Job {
   id          String    @id @default(cuid())
