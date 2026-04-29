@@ -106,8 +106,12 @@ model Evidence {
 /// search-page job spawn detail-page children once the search captures land.
 model CrawlJob {
   id            String    @id @default(cuid())
-  kind          String    // "search-page" | "job-detail" | "category-feed"
+  kind          String    // "search-page" | "job-detail" | "category-feed" | "apply-filters"
   url           String
+  /// Free-form JSON payload for kinds that need extra data (currently:
+  /// "apply-filters" jobs carry an ApplyFiltersPayload). NULL for the
+  /// scrape-only kinds.
+  payload       String?
   status        String    @default("pending") // pending | running | done | failed
   attempts      Int       @default(0)
   leaseUntil    DateTime?
@@ -120,6 +124,10 @@ model CrawlJob {
   /// `--no-expand-detail` and similar CLI flags are persisted per-job so the
   /// done handler knows whether to spawn children.
   expandToDetail Boolean  @default(true)
+  /// Name of the preset that spawned this job, if any. NULL for ad-hoc
+  /// `crawl search`/`crawl url` jobs and for detail children spawned from
+  /// search captures (their parent's preset stays on the parent row).
+  preset        String?
   parentId      String?
   parent        CrawlJob? @relation("CrawlChildren", fields: [parentId], references: [id], onDelete: Cascade)
   children      CrawlJob[] @relation("CrawlChildren")
@@ -127,6 +135,7 @@ model CrawlJob {
   @@index([status, enqueuedAt])
   @@index([leaseUntil])
   @@index([parentId])
+  @@index([preset])
 }
 
 /// Singleton config row controlling the crawler. The extension reads this on

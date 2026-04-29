@@ -51,6 +51,10 @@ export async function POST(
     childrenCreated = await spawnDetailChildren(id, parsed.data.capturedExternalIds);
   }
 
+  console.log(
+    `[crawl] done  ${id.slice(0, 8)} kind=${job.kind} items=${parsed.data.itemsCaptured} children=${childrenCreated}`,
+  );
+
   return NextResponse.json<CrawlDoneResponse>(
     { childrenCreated },
     { headers: CRAWL_CORS },

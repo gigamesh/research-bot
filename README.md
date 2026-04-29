@@ -155,7 +155,7 @@ Then in Chrome:
 1. Open `chrome://extensions`
 2. Enable **Developer Mode** (top right)
 3. **Load unpacked** → select `apps/extension/dist/`
-4. Click the extension icon → **Settings** → confirm endpoint is `http://localhost:3000/api/ingest/upwork` (or match the port your dev server is using)
+4. Click the extension icon → **Settings** → confirm endpoint is `http://localhost:3001/api/ingest/upwork` (matches `pnpm dev`'s pinned port).
 
 The extension only activates on `https://www.upwork.com/*`. It runs in **two
 modes simultaneously**:
@@ -179,8 +179,13 @@ pnpm ingest:ph                     # needs PRODUCTHUNT_TOKEN
 The crawler is controlled entirely from the CLI. The extension just executes.
 
 ```bash
-pnpm crawl search "<query>" [--pages N] [--no-expand-detail]
-pnpm crawl url <url>             [--no-expand-detail]
+pnpm crawl preset list                                  # show curated strategies (recommended)
+pnpm crawl preset <name> [--pages N] [--filter <recipe>] [--no-expand-detail]
+pnpm crawl filters list                                 # show named filter recipes
+pnpm crawl filters show <name>                          # print a recipe's resolved FilterSpec
+pnpm crawl filters apply <name>                         # standalone: just set filters, no crawl
+pnpm crawl search "<query>" [--pages N] [--filter <recipe>] [--no-expand-detail]
+pnpm crawl url <url>             [--filter <recipe>] [--no-expand-detail]
 pnpm crawl status                [--watch]
 pnpm crawl pause                 [--reason <text>]
 pnpm crawl resume                # also expires stale leases
@@ -189,11 +194,19 @@ pnpm crawl throttle <minMs> <maxMs>     # default 5000..9000
 pnpm crawl expand-detail on|off         # default for new search-page jobs
 ```
 
+**`--filter <recipe>` integrates filter setup into the crawl step.** When
+present, an `apply-filters` job is prepended to the queue so the SW configures
+Upwork's Filters dialog before harvesting. So a typical run is just one command:
+
+```bash
+pnpm crawl preset feeds --filter high-ltv
+```
+
 **Typical flow:**
 
 ```bash
-# 1. Enqueue 5 search-result pages for a query
-pnpm crawl search "ai consultant" --pages 5
+# 1. Run a curated strategy (3 pages × ~10 terms = ~30 search jobs)
+pnpm crawl preset glue-integration --pages 3
 
 # 2. Watch progress (Ctrl-C to exit)
 pnpm crawl status --watch
@@ -205,6 +218,96 @@ pnpm pipeline:all
 By default, each captured search-result card auto-spawns a follow-up
 `job-detail` job for the same `~01…` id, so the LLM gets the full description +
 client stats instead of just the snippet. Disable with `--no-expand-detail`.
+
+### Recommended search strategies (presets)
+
+`pnpm crawl search "<free text>"` is fine for one-offs, but most of the
+captured listings will be one-off projects, freelancer-supply roles, or
+low-spend clients that won't validate willingness-to-pay. **For systematic
+high-LTV/CAC discovery use presets**, defined in
+`apps/web/scripts/crawl-presets.ts`.
+
+**LTV/CAC filtering happens in Upwork itself, not in URL params.** Upwork's
+current site stores filters server-side per account (the "Filters" dialog on
+`/nx/find-work/*`). URL params like `payment_verified_only=1`, `t=0`,
+`duration_v3=ongoing` no longer take effect. So the recommended flow is:
+
+1. **Bake the recipe into the crawl command via `--filter <recipe>`** — the
+   CLI prepends an `apply-filters` job that opens Upwork's Filters dialog,
+   clicks Clear, ticks the recipe's boxes, and clicks Apply, before the rest
+   of the queue runs. Recipes live in `apps/web/scripts/crawl-filters.ts`.
+2. From then on, every page the crawler visits inherits the filter set
+   server-side. You can also re-apply between runs to switch strategies.
+
+```bash
+# show the available recipes
+pnpm crawl filters list
+
+# print the resolved FilterSpec without running anything
+pnpm crawl filters show high-ltv
+
+# typical run — filter + harvest in one command
+pnpm crawl preset feeds --filter high-ltv
+
+# standalone: just set the filters, no crawl
+pnpm crawl filters apply high-ltv
+```
+
+You can also manually open the Filters dialog in your browser if you prefer —
+the recipe path is just an automation of the same dialog.
+
+There are two preset shapes:
+
+- **`kind: "search"`** — bundles a list of free-text queries. Each `term ×
+  page` enqueues a `/nx/jobs/search/?q=…&page=N` job. Use for verticals,
+  glue-integration patterns, and other keyword-driven discovery.
+- **`kind: "urls"`** — bundles a list of literal URLs (no template). Use for
+  account-tied feeds where the filter set, not the URL, drives content.
+  `--pages` is ignored; the content script scrolls these in-place to load
+  more tiles (see "Scroll-to-load" below).
+
+The seed presets:
+
+| Preset                 | Kind   | Why it's high-ROI |
+|---|---|---|
+| **feeds**              | urls   | Your three personalized find-work feeds (Best Matches, Most Recent, U.S. Only). Whatever filters you've saved in Upwork's UI apply. The most important preset to run weekly once your filters are tuned. |
+| **glue-integration**   | search | Glue between two existing tools = textbook SaaS opportunity. Customers already pay humans monthly to copy data. |
+| **verticals-ops**      | search | Non-tech verticals (dental, HVAC, real estate, law, salons, restaurants…) are SaaS demand, not freelancer supply. Low CAC because each audience is reachable through narrow industry channels. |
+| **recurring-ops-roles** | search | Job titles that exist because software hasn't caught up — RevOps, MarketingOps, integration specialist. High-LTV (well-funded teams hire for these) and structured enough to automate. |
+| **spreadsheet-abuse**  | search | A spreadsheet maintained weekly by a paid human is the loudest possible signal of a missing product. |
+| **non-tech-saas-gaps** | search | Vertical SaaS adjacencies where existing tools (Mindbody, ServiceTitan, Jobber, Clio…) have known sharp edges. Customers actively pay around the limitations. |
+
+**Scroll-to-load.** The find-work feeds use infinite scroll, not `?page=N`.
+When the crawler navigates to a feed URL, the content script auto-scrolls in
+viewport-sized increments (1.5–3.5 s jittered, max 8 scrolls, stops on two
+consecutive scrolls with no new tiles) so a single visit captures ~80–160
+tiles instead of just the first ~30. Scroll-to-load **only fires in
+crawler-driven mode** — passive browsing is left alone.
+
+**Suggested weekly rhythm:**
+
+- **Mon**: `pnpm crawl preset feeds` to harvest your filter-tuned feeds.
+  3 URLs × ~80–160 tiles + detail expansion = a few hours of crawl time at
+  the default 5–9 s throttle. Run in the background.
+- **Mid-week**: rotate through one of the keyword-driven presets
+  (`glue-integration`, `verticals-ops`, etc.) with `--pages 3..5`.
+- **As needed**: when the dashboard surfaces an Opportunity with high
+  `demandScore` but middling `monetizationScore`, hand-write 3–5 narrower
+  queries via `pnpm crawl search "<query>"` to validate willingness-to-pay.
+- **Refine, don't restart**: once a preset surfaces 2+ promising clusters,
+  *add* terms to that preset's `terms[]` list rather than creating a new
+  preset. The preset *names* are the contract; their contents evolve weekly.
+
+**Adding a new preset**: edit `apps/web/scripts/crawl-presets.ts`, add an
+entry to `PRESETS`. No other code changes needed.
+
+**Inspecting a preset's URLs without running it**:
+
+```bash
+pnpm crawl preset feeds
+sqlite3 apps/web/prisma/dev.db "SELECT url FROM CrawlJob WHERE preset='feeds'"
+pnpm crawl clear --all   # if you don't actually want to run it
+```
 
 ### How the crawler stays under the radar
 
@@ -240,7 +343,7 @@ All stages are idempotent — re-running picks up only new work.
 ### Inspecting state
 
 ```bash
-pnpm dev                       # http://localhost:3000  → ranked dashboard
+pnpm dev                       # http://localhost:3001  → ranked dashboard (port pinned)
 pnpm db:studio                 # http://localhost:5555  → Prisma Studio
 pnpm crawl status --watch      # live crawl queue
 ```

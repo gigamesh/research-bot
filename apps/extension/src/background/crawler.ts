@@ -3,7 +3,7 @@ import type {
   CrawlNextResponse,
   CrawlFailReason,
 } from "@research-bot/shared";
-import { getSettings, patchStatus } from "@/lib/storage";
+import { getSettings, patchStatus, setPendingApplyFilters } from "@/lib/storage";
 import { fetchNext, reportDone, reportFail } from "@/lib/crawl-transport";
 
 /// Crawler. Polls the local web app for pending CrawlJobs, drives a single
@@ -37,7 +37,15 @@ async function ensureManagedTab(url: string): Promise<number> {
     try {
       const tab = await chrome.tabs.get(managedTabId);
       if (tab) {
-        await chrome.tabs.update(managedTabId, { url, active: false });
+        // If the tab is already on the target URL, chrome.tabs.update is a
+        // no-op (no navigation, no content-script re-run). Force a reload so
+        // the content script runs fresh and picks up any pending task.
+        const sameUrl = typeof tab.url === "string" && stripFragment(tab.url) === stripFragment(url);
+        if (sameUrl) {
+          await chrome.tabs.reload(managedTabId);
+        } else {
+          await chrome.tabs.update(managedTabId, { url, active: false });
+        }
         return managedTabId;
       }
     } catch {
@@ -48,6 +56,11 @@ async function ensureManagedTab(url: string): Promise<number> {
   managedTabId = tab.id ?? null;
   if (managedTabId === null) throw new Error("Could not create managed tab");
   return managedTabId;
+}
+
+function stripFragment(u: string): string {
+  const i = u.indexOf("#");
+  return i < 0 ? u : u.slice(0, i);
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {
@@ -147,6 +160,19 @@ async function runJob(job: CrawlJobView): Promise<void> {
     }, JOB_TIMEOUT_MS);
 
     try {
+      // For apply-filters jobs, stash the payload in chrome.storage.local
+      // BEFORE navigating. The content script reads it on load and runs the
+      // filter-apply flow instead of the scrape flow.
+      if (job.kind === "apply-filters") {
+        await setPendingApplyFilters({
+          jobId: job.id,
+          url: job.url,
+          payloadJson: job.payload ?? "",
+          writtenAt: Date.now(),
+        });
+        console.log(`[crawler] stash apply-filters ${job.id.slice(0, 8)} → ${job.url}`);
+      }
+      console.log(`[crawler] navigating managed tab → ${job.url}`);
       await ensureManagedTab(job.url);
     } catch (err) {
       completeActive("fail", 0, "navigation_error", (err as Error).message);
@@ -212,4 +238,11 @@ export function crawlerStatus(): { running: boolean; managedTabId: number | null
     managedTabId,
     activeJobId: active?.job.id ?? null,
   };
+}
+
+/// Used by content scripts to ask "am I being driven by the crawler?". Returns
+/// true when the calling tab is the managed tab AND a job is in flight.
+export function isManagedTab(tabId: number | undefined): boolean {
+  if (tabId === undefined) return false;
+  return managedTabId !== null && tabId === managedTabId && active !== null;
 }

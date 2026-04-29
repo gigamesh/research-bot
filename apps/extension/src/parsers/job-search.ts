@@ -1,9 +1,18 @@
 import type { UpworkJobItem } from "@research-bot/shared";
 import { SELECTORS, type SelectorMap } from "@/lib/selectors";
-import { absoluteUrl, extractJobId, parseBudget, parseRelativeTime, text, textList } from "./helpers";
+import {
+  absoluteUrl,
+  extractJobIdFromTile,
+  parseBudget,
+  parseDuration,
+  parseRating,
+  parseRelativeTime,
+  text,
+  textList,
+} from "./helpers";
 
 /// Parses a job-search OR category-feed results page. Both share the same
-/// card structure on Upwork; the only difference is which route surfaced them.
+/// tile DOM on Upwork — the only difference is which route surfaced them.
 export function parseCardListPage(
   doc: Document,
   capturedFrom: "job-search" | "category-feed",
@@ -11,41 +20,68 @@ export function parseCardListPage(
   const map: SelectorMap = SELECTORS[capturedFrom];
   if (!map.itemList || !map.card) return [];
 
-  const cards = doc.querySelectorAll(map.itemList);
+  const card = map.card;
+  const tiles = doc.querySelectorAll(map.itemList);
   const items: UpworkJobItem[] = [];
 
-  for (const card of cards) {
-    const titleEl = card.querySelector(map.card.titleLink);
-    const href = titleEl?.getAttribute("href") ?? null;
-    const externalId = extractJobId(href);
-    const url = absoluteUrl(href);
-    if (!externalId || !url) continue;
+  for (const tile of tiles) {
+    const externalId = extractJobIdFromTile(tile);
+    if (!externalId) continue;
 
-    const skillEls = map.card.skills ? card.querySelectorAll(map.card.skills) : null;
-    const budget = parseBudget(text(map.card.budget ? card.querySelector(map.card.budget) : null));
+    const titleEl = tile.querySelector(card.titleLink);
+    const url = absoluteUrl(titleEl?.getAttribute("href") ?? null);
+    if (!url) continue;
+
+    const jobTypeText = text(card.jobType ? tile.querySelector(card.jobType) : null);
+    const fixedBudgetText = text(card.budget ? tile.querySelector(card.budget) : null);
+    const budget = parseBudget([jobTypeText, fixedBudgetText].filter(Boolean).join(" "));
+
+    const duration = parseDuration(
+      text(card.duration ? tile.querySelector(card.duration) : null),
+    );
+
+    const skillEls = card.skills ? tile.querySelectorAll(card.skills) : null;
+
+    const paymentVerified =
+      /verified/i.test(
+        text(
+          card.paymentVerification
+            ? tile.querySelector(card.paymentVerification)
+            : null,
+        ),
+      ) || undefined;
+
+    const ratingSrOnly = text(
+      card.clientRatingSrOnly ? tile.querySelector(card.clientRatingSrOnly) : null,
+    );
+    const rating = parseRating(ratingSrOnly);
 
     items.push({
       externalId,
       url,
       capturedFrom,
       title: text(titleEl) || "(untitled)",
-      body: text(map.card.snippet ? card.querySelector(map.card.snippet) : null),
+      body: text(card.snippet ? tile.querySelector(card.snippet) : null),
       postedAt:
-        parseRelativeTime(text(map.card.postedAt ? card.querySelector(map.card.postedAt) : null)) ??
+        parseRelativeTime(text(card.postedAt ? tile.querySelector(card.postedAt) : null)) ??
         undefined,
       ...budget,
       budgetCurrency: "USD",
       proposalsBand:
-        text(map.card.proposalsBand ? card.querySelector(map.card.proposalsBand) : null) ||
-        undefined,
+        text(card.proposalsBand ? tile.querySelector(card.proposalsBand) : null) || undefined,
+      experienceLevel:
+        text(card.contractorTier ? tile.querySelector(card.contractorTier) : null) || undefined,
+      projectLength: duration.projectLength,
+      hoursPerWeek: duration.hoursPerWeek,
       skills: textList(skillEls),
       client: {
         country:
-          text(map.card.clientCountry ? card.querySelector(map.card.clientCountry) : null) ||
-          undefined,
+          text(card.clientCountry ? tile.querySelector(card.clientCountry) : null) || undefined,
         spentBand:
-          text(map.card.clientSpentBand ? card.querySelector(map.card.clientSpentBand) : null) ||
+          text(card.clientSpentBand ? tile.querySelector(card.clientSpentBand) : null) ||
           undefined,
+        rating,
+        paymentVerified,
       },
       screeningQuestions: [],
     });

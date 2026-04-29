@@ -1,10 +1,24 @@
 /// Small parsing utilities shared across the page-type parsers.
 
-const JOB_ID = /(~01[a-zA-Z0-9]+)/;
+/// Upwork's job ids look like `~02<19-digit-number>` in current URLs (older
+/// listings used `~01...`). The leading `~0\d` anchor handles both. In job
+/// tiles the bare numeric id is also exposed as `data-ev-opening_uid` on the
+/// outer section — `extractJobIdFromTile` prefers that since it's faster and
+/// can't drift from a slug change.
+const JOB_ID = /(~0\d[a-zA-Z0-9]+)/;
 
 export function extractJobId(href: string | null | undefined): string | null {
   if (!href) return null;
   return href.match(JOB_ID)?.[1] ?? null;
+}
+
+/// Pull the externalId from a job tile element. Prefers the analytics
+/// attribute (numeric, stable) and falls back to parsing the title-link href.
+export function extractJobIdFromTile(tile: Element): string | null {
+  const uid = tile.getAttribute("data-ev-opening_uid");
+  if (uid && /^\d+$/.test(uid)) return `~02${uid}`;
+  const link = tile.querySelector("a[data-ev-label='link'], h3.job-tile-title a, h2 a, h3 a");
+  return extractJobId(link?.getAttribute("href") ?? null);
 }
 
 export function absoluteUrl(href: string | null | undefined): string | null {
@@ -82,4 +96,34 @@ export function parseRelativeTime(label: string, now: Date = new Date()): string
     year: 31_536_000_000,
   };
   return new Date(now.getTime() - n * ms[unit]).toISOString();
+}
+
+/// Upwork's `data-test="duration"` field combines two pieces:
+///   "3 to 6 months, 30+ hrs/week"      → projectLength + hoursPerWeek
+///   "Less than 1 month, Less than 30 hrs/week"
+///   "More than 6 months, 30+ hrs/week"
+/// The parts are comma-separated; treat anything matching /hr|week/ as hours.
+export function parseDuration(label: string): {
+  projectLength?: string;
+  hoursPerWeek?: string;
+} {
+  if (!label) return {};
+  const parts = label.split(",").map((s) => s.trim()).filter(Boolean);
+  const result: { projectLength?: string; hoursPerWeek?: string } = {};
+  for (const part of parts) {
+    if (/hr|hour|week/i.test(part)) result.hoursPerWeek = part;
+    else if (!result.projectLength) result.projectLength = part;
+  }
+  return result;
+}
+
+/// Read client rating from the screen-reader-only label that Upwork keeps
+/// up to date alongside the visual stars: `<span class="sr-only">Rating is
+/// 4.7 out of 5.</span>`. More reliable than parsing the foreground bar
+/// width.
+export function parseRating(text: string): number | undefined {
+  const m = text.match(/rating is (\d+(?:\.\d+)?)\s*out of\s*5/i);
+  if (!m) return undefined;
+  const n = Number(m[1]);
+  return Number.isFinite(n) ? n : undefined;
 }

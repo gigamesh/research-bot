@@ -48,6 +48,11 @@ export async function POST(
     },
   });
 
+  console.log(
+    `[crawl] FAIL  ${id.slice(0, 8)} kind=${job.kind} reason=${parsed.data.reason}` +
+      (parsed.data.error ? ` error=${parsed.data.error.slice(0, 200)}` : ""),
+  );
+
   // Bot-protection signals trigger a global pause so the user can intervene
   // (re-login, complete a CAPTCHA in the managed tab, then `pnpm crawl resume`).
   if (isBotProtectionReason(parsed.data.reason)) {

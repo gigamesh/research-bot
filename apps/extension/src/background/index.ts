@@ -6,6 +6,7 @@ import {
   stopCrawler,
   handleCrawlStatus,
   noteCapturedExternalIds,
+  isManagedTab,
 } from "./crawler";
 
 /// Background service worker. Receives scraped items from content scripts,
@@ -112,6 +113,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "upwork:flush") {
     scheduleFlush(0);
     sendResponse({ ok: true });
+    return true;
+  }
+  if (msg?.type === "crawl:am-i-managed") {
+    sendResponse({ managed: isManagedTab(sender.tab?.id) });
     return true;
   }
   if (msg?.type === "crawl:status") {

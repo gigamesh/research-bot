@@ -33,8 +33,14 @@ export async function GET(): Promise<Response> {
         expandToDetail: claimed.expandToDetail,
         attempts: claimed.attempts,
         leaseUntil: (claimed.leaseUntil ?? new Date()).toISOString(),
+        payload: claimed.payload ?? null,
       }
     : null;
+  if (claimed) {
+    console.log(
+      `[crawl] claim ${claimed.id.slice(0, 8)} kind=${claimed.kind} attempt=${claimed.attempts} url=${claimed.url}`,
+    );
+  }
 
   return NextResponse.json<CrawlNextResponse>(
     { ...base, job },

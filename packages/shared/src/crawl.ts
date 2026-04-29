@@ -6,7 +6,12 @@ import { z } from "zod";
  * managed tab to the URL, then reports completion or failure.
  */
 
-export const CrawlKindSchema = z.enum(["search-page", "job-detail", "category-feed"]);
+export const CrawlKindSchema = z.enum([
+  "search-page",
+  "job-detail",
+  "category-feed",
+  "apply-filters",
+]);
 export type CrawlKind = z.infer<typeof CrawlKindSchema>;
 
 /// Shape returned to the SW for the active job slot.
@@ -17,6 +22,8 @@ export const CrawlJobViewSchema = z.object({
   expandToDetail: z.boolean(),
   attempts: z.number().int().nonnegative(),
   leaseUntil: z.string().datetime(),
+  /// JSON blob — populated for `apply-filters` jobs (carries ApplyFiltersPayload).
+  payload: z.string().nullable().optional(),
 });
 export type CrawlJobView = z.infer<typeof CrawlJobViewSchema>;
 
