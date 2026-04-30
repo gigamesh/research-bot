@@ -9,6 +9,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/seed.ts",
+    "db:dump": "sqlite3 prisma/dev.db .dump | gzip -9 > prisma/dev-seed.sql.gz",
+    "db:restore": "rm -f prisma/dev.db prisma/dev.db-journal prisma/dev.db-wal prisma/dev.db-shm && gunzip -c prisma/dev-seed.sql.gz | sqlite3 prisma/dev.db",
     "pipeline:signals": "tsx scripts/pipeline/signals.ts",
     "pipeline:embed": "tsx scripts/pipeline/embed.ts",
     "pipeline:cluster": "tsx scripts/pipeline/cluster.ts",
