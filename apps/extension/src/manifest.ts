@@ -3,9 +3,9 @@ import pkg from "../package.json" with { type: "json" };
 
 export default defineManifest({
   manifest_version: 3,
-  name: "research-bot — Upwork capture",
+  name: "research-bot — Reseller Buddy capture",
   description:
-    "Passively captures Upwork job pages you browse and forwards them to your local research-bot instance.",
+    "Drives the authenticated Kajabi reseller community at shannonjean.info to capture posts and conversations for local insight extraction.",
   version: pkg.version,
   action: {
     default_title: "research-bot",
@@ -21,14 +21,14 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      matches: ["https://www.upwork.com/*"],
-      js: ["src/content/upwork.ts"],
+      matches: ["https://www.shannonjean.info/*"],
+      js: ["src/content/kajabi.ts"],
       run_at: "document_idle",
     },
   ],
   permissions: ["storage", "activeTab", "alarms"],
   host_permissions: [
-    "https://www.upwork.com/*",
+    "https://www.shannonjean.info/*",
     "http://localhost/*",
     "http://127.0.0.1/*",
   ],

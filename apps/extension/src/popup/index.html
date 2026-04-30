@@ -11,10 +11,10 @@
       <span id="status-dot" class="dot off" aria-hidden="true"></span>
     </header>
 
-    <section id="crawl">
-      <div class="row"><span class="label">Crawl</span><span id="crawl-state">idle</span></div>
-      <div class="row"><span class="label">Pending</span><span id="crawl-pending">0</span></div>
-      <div class="row"><span class="label">Done / failed</span><span id="crawl-tally">0 / 0</span></div>
+    <section id="scrape">
+      <div class="row"><span class="label">Scrape</span><span id="scrape-state">idle</span></div>
+      <div class="row"><span class="label">Started</span><span id="scrape-since">—</span></div>
+      <div class="row"><span class="label">Last heartbeat</span><span id="scrape-heartbeat">—</span></div>
     </section>
 
     <section id="summary">
@@ -31,7 +31,7 @@
     </section>
 
     <footer>
-      Driven from the CLI: <code>pnpm crawl …</code>
+      Driven from the CLI: <code>pnpm scrape feed</code>
     </footer>
 
     <script type="module" src="./index.ts"></script>

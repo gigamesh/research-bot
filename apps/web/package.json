@@ -9,16 +9,14 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/seed.ts",
-    "ingest:hn": "tsx scripts/ingest/hackernews.ts",
-    "ingest:reddit": "tsx scripts/ingest/reddit.ts",
-    "ingest:ph": "tsx scripts/ingest/producthunt.ts",
     "pipeline:signals": "tsx scripts/pipeline/signals.ts",
     "pipeline:embed": "tsx scripts/pipeline/embed.ts",
     "pipeline:cluster": "tsx scripts/pipeline/cluster.ts",
     "pipeline:research": "tsx scripts/pipeline/research.ts",
     "pipeline:all": "pnpm pipeline:signals && pnpm pipeline:embed && pnpm pipeline:cluster && pnpm pipeline:research",
     "inspect:clusters": "tsx scripts/pipeline/inspect-clusters.ts",
-    "crawl": "tsx scripts/crawl.ts"
+    "scrape": "tsx scripts/scrape.ts",
+    "scrape:dump-html": "tsx scripts/dump-html.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.119",

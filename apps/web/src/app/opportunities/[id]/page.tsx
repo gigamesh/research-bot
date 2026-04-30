@@ -60,11 +60,17 @@ export default async function OpportunityPage({
         <div className="font-mono text-5xl font-bold tabular-nums">{opp.score.toFixed(1)}</div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-5 gap-3 mb-6">
         <Scorecard label="demand" value={formatScore(opp.demandScore)} />
         <Scorecard label="monetization" value={formatScore(opp.monetizationScore)} />
         <Scorecard label="solo-dev" value={formatScore(opp.soloDevScore)} />
         <Scorecard label="competition" value={formatScore(opp.competitionScore)} variant="penalty" />
+        <Scorecard
+          label="bstock fit"
+          value={formatScore(opp.bstockSpecificity)}
+          variant="info"
+          tooltip="10 = bstock-pallet-only. 0 = applies to any reseller."
+        />
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -111,20 +117,21 @@ function Scorecard({
   label,
   value,
   variant,
+  tooltip,
 }: {
   label: string;
   value: string;
-  variant?: "penalty";
+  variant?: "penalty" | "info";
+  tooltip?: string;
 }) {
-  const penalty = variant === "penalty";
+  const styles =
+    variant === "penalty"
+      ? "border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30"
+      : variant === "info"
+        ? "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30"
+        : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900";
   return (
-    <div
-      className={`border rounded p-3 ${
-        penalty
-          ? "border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30"
-          : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
-      }`}
-    >
+    <div className={`border rounded p-3 ${styles}`} title={tooltip}>
       <div className="text-xs uppercase tracking-wide text-zinc-500">{label}</div>
       <div className="font-mono text-2xl font-semibold tabular-nums">{value}</div>
     </div>
@@ -142,14 +149,17 @@ type EvidenceItem = {
       id: string;
       url: string;
       title: string | null;
+      author: string | null;
       source: { name: string };
     };
   };
 };
 
-/// Groups evidence by source post so the same Reddit thread doesn't appear as
-/// N separate "independent" cards. Multi-signal posts (e.g. one yielding both a
-/// `pain` and a `wish`) collapse into a single card listing all facets.
+/// Groups evidence by source post so the same conversation thread doesn't
+/// appear as N separate "independent" cards. Multi-signal posts (one yielding
+/// a `pain` and a `wish` from different speakers) collapse into a single card
+/// listing all facets, with the post URL deep-linking back into the
+/// shannonjean.info thread.
 function EvidenceList({ evidence }: { evidence: EvidenceItem[] }) {
   const byPost = new Map<string, EvidenceItem[]>();
   for (const e of evidence) {
@@ -189,6 +199,7 @@ function EvidenceList({ evidence }: { evidence: EvidenceItem[] }) {
                   {post.title ?? post.url} ↗
                 </a>
                 <span className="shrink-0">
+                  {post.author ? `${post.author} · ` : ""}
                   {post.source.name}
                   {group.length > 1 ? ` · ${group.length} signals` : ""}
                 </span>

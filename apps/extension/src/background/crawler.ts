@@ -1,60 +1,91 @@
-import type {
-  CrawlJobView,
-  CrawlNextResponse,
-  CrawlFailReason,
-} from "@research-bot/shared";
-import { getSettings, patchStatus, setPendingApplyFilters } from "@/lib/storage";
-import { fetchNext, reportDone, reportFail } from "@/lib/crawl-transport";
+import type { ScrapeFailReason, ScrapeSession } from "@research-bot/shared";
+import { getSettings, patchStatus } from "@/lib/storage";
+import {
+  fetchCurrent,
+  postCancel,
+  reportComplete,
+  reportFail,
+} from "@/lib/scrape-transport";
 
-/// Crawler. Polls the local web app for pending CrawlJobs, drives a single
-/// managed Chrome tab through each URL, and reports done/fail. The capture
-/// itself still flows through the existing `upwork:items` → `/api/ingest/upwork`
-/// path — this module only orchestrates *when* the user's session visits a URL.
+/// Session-driven scraper. Polls /api/scrape/current every POLL_INTERVAL_MS.
+/// While the session is `running`, drives a single managed Chrome tab to
+/// the feed URL and lets the content script work. When the session goes
+/// terminal — by user cancel, server watchdog, or content-script done —
+/// closes the tab.
+///
+/// The CLI owns the lifecycle. The SW is a simple state-follower.
 
-const POLL_IDLE_MS = 5000;       // poll cadence when no job is in flight
-const JOB_TIMEOUT_MS = 90_000;   // give a page up to 90s to render + capture
+const FEED_URL = "https://www.shannonjean.info/products/communities/v2/xmm/home";
+const POLL_INTERVAL_MS = 1500;
 
-type JobContext = {
-  job: CrawlJobView;
-  externalIds: Set<string>;
-  startedAt: number;
-  timeoutHandle: ReturnType<typeof setTimeout> | null;
-  resolve: () => void;
-};
+// chrome.storage.local key for the persisted managed tab id (so the SW can
+// recover after MV3 hibernation).
+const STORAGE_TAB_KEY = "managedTabId";
 
 let managedTabId: number | null = null;
-let active: JobContext | null = null;
-let pollTimer: ReturnType<typeof setTimeout> | null = null;
 let running = false;
+let pollTimer: ReturnType<typeof setTimeout> | null = null;
+let lastSeenStartedAt: string | null = null;
+let lastReportedStatus: ScrapeSession["status"] | "absent" | null = null;
+let completionInFlight = false;
 
-function jitter(min: number, max: number): number {
-  if (max <= min) return Math.max(0, min);
-  return min + Math.floor(Math.random() * (max - min));
+// One-time content-script tally for the active session, indexed by post UUID.
+const sessionExternalIds = new Set<string>();
+
+async function loadPersistedTabId(): Promise<void> {
+  try {
+    const got = await chrome.storage.local.get({ [STORAGE_TAB_KEY]: null });
+    const id = (got as Record<string, unknown>)[STORAGE_TAB_KEY];
+    if (typeof id === "number") {
+      try {
+        const tab = await chrome.tabs.get(id);
+        if (tab) {
+          managedTabId = id;
+          return;
+        }
+      } catch {
+        /* tab no longer exists */
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  managedTabId = null;
+}
+
+async function persistTabId(id: number | null): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE_TAB_KEY]: id });
 }
 
 async function ensureManagedTab(url: string): Promise<number> {
+  // Mid-session recovery only: if the SW just respawned but a session
+  // is still running, reuse the persisted tab so we don't spawn a
+  // duplicate scraper into a new tab. Validate it's still on the host
+  // before trusting it.
   if (managedTabId !== null) {
     try {
       const tab = await chrome.tabs.get(managedTabId);
-      if (tab) {
-        // If the tab is already on the target URL, chrome.tabs.update is a
-        // no-op (no navigation, no content-script re-run). Force a reload so
-        // the content script runs fresh and picks up any pending task.
-        const sameUrl = typeof tab.url === "string" && stripFragment(tab.url) === stripFragment(url);
-        if (sameUrl) {
-          await chrome.tabs.reload(managedTabId);
-        } else {
-          await chrome.tabs.update(managedTabId, { url, active: false });
-        }
+      const onHost =
+        typeof tab?.url === "string" && tab.url.startsWith("https://www.shannonjean.info/");
+      if (tab && onHost) {
         return managedTabId;
       }
+      // Persisted tab was reused by Chrome for something else, or moved
+      // off-host. Discard and create fresh.
+      managedTabId = null;
+      await persistTabId(null);
     } catch {
-      // stale id; fall through
+      managedTabId = null;
+      await persistTabId(null);
     }
   }
+
+  // Default behavior: each scrape session opens its own fresh tab.
   const tab = await chrome.tabs.create({ url, active: false });
   managedTabId = tab.id ?? null;
   if (managedTabId === null) throw new Error("Could not create managed tab");
+  await persistTabId(managedTabId);
+  console.log(`[crawler] created managed tab ${managedTabId} window=${tab.windowId}`);
   return managedTabId;
 }
 
@@ -64,120 +95,62 @@ function stripFragment(u: string): string {
 }
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  if (tabId === managedTabId) managedTabId = null;
+  if (tabId === managedTabId) {
+    managedTabId = null;
+    void persistTabId(null);
+  }
 });
 
-/// Content scripts call back here at end-of-page with a status. We correlate by
-/// tab id so a passive (non-managed) capture in another tab doesn't accidentally
-/// complete the active job.
-export function handleCrawlStatus(
-  sender: chrome.runtime.MessageSender,
-  status:
-    | { ok: true; externalIds: string[]; itemsCaptured: number }
-    | { ok: false; reason: CrawlFailReason; error?: string },
-): void {
-  if (!active) return;
-  if (sender.tab?.id !== managedTabId) return;
-
-  if (status.ok) {
-    active.externalIds = new Set(status.externalIds);
-    completeActive("done", status.itemsCaptured);
-  } else {
-    completeActive("fail", 0, status.reason, status.error);
-  }
+/// Used by content scripts to ask "am I being driven by the scraper?".
+/// Returns true when the calling tab is the managed tab AND we observed
+/// `running` state on the last poll.
+export function isManagedTab(tabId: number | undefined): boolean {
+  if (tabId === undefined) return false;
+  return managedTabId !== null && tabId === managedTabId && lastReportedStatus === "running";
 }
 
-/// Some captures are emitted before the final status (e.g. card lists). Track
-/// the externalIds opportunistically so a timeout still ships a partial result.
+/// Content scripts emit `kajabi:items` with each captured post; track the
+/// running tally so the completion path can report it accurately.
 export function noteCapturedExternalIds(
   sender: chrome.runtime.MessageSender,
   ids: string[],
 ): void {
-  if (!active) return;
   if (sender.tab?.id !== managedTabId) return;
-  for (const id of ids) active.externalIds.add(id);
+  for (const id of ids) sessionExternalIds.add(id);
 }
 
-function completeActive(
-  outcome: "done" | "fail",
-  itemsCaptured: number,
-  reason?: CrawlFailReason,
-  error?: string,
-): void {
-  if (!active) return;
-  const ctx = active;
-  active = null;
-  if (ctx.timeoutHandle) clearTimeout(ctx.timeoutHandle);
-
-  const finish = async () => {
+/// Content script → SW completion message. Drains the SW's ingest queue
+/// (so all in-flight items reach the DB before we report done), then
+/// POSTs /api/scrape/complete. The CLI's status loop then sees `done`
+/// and exits cleanly.
+export async function handleScriptComplete(
+  sender: chrome.runtime.MessageSender,
+  flushAndDrain: () => Promise<void>,
+): Promise<void> {
+  if (sender.tab?.id !== managedTabId) return;
+  if (completionInFlight) return;
+  completionInFlight = true;
+  const captured = sessionExternalIds.size;
+  console.log(`[crawler] content script reported complete; draining queue (${captured} posts)`);
+  try {
+    await flushAndDrain();
     const settings = await getSettings();
-    if (outcome === "done") {
-      const res = await reportDone(settings.endpoint, ctx.job.id, {
-        itemsCaptured,
-        capturedExternalIds: Array.from(ctx.externalIds),
-      });
-      await patchStatus({
-        lastError: null,
-        capturedThisSession: (await sumCaptured(itemsCaptured)),
-      });
-      console.log(`[crawler] done ${ctx.job.id.slice(0, 8)} items=${itemsCaptured} children=${res?.childrenCreated ?? 0}`);
-    } else {
-      const res = await reportFail(settings.endpoint, ctx.job.id, {
-        reason: reason ?? "other",
-        error,
-      });
-      await patchStatus({
-        lastError: `${reason ?? "other"}: ${error ?? "(no detail)"}`,
-      });
-      console.warn(`[crawler] fail ${ctx.job.id.slice(0, 8)} reason=${reason} paused=${res?.paused}`);
-    }
-    ctx.resolve();
-  };
-  void finish();
+    await reportComplete(settings.endpoint, captured);
+    console.log("[crawler] reported complete to server");
+  } finally {
+    completionInFlight = false;
+  }
 }
 
-async function sumCaptured(delta: number): Promise<number> {
-  const got = await chrome.storage.local.get({ status: { capturedThisSession: 0 } });
-  const current = (got.status as { capturedThisSession: number }).capturedThisSession ?? 0;
-  return current + delta;
-}
-
-async function runJob(job: CrawlJobView): Promise<void> {
-  await new Promise<void>(async (resolve) => {
-    const ctx: JobContext = {
-      job,
-      externalIds: new Set(),
-      startedAt: Date.now(),
-      timeoutHandle: null,
-      resolve,
-    };
-    active = ctx;
-
-    ctx.timeoutHandle = setTimeout(() => {
-      if (active === ctx) {
-        completeActive("fail", ctx.externalIds.size, "timeout", `no response in ${JOB_TIMEOUT_MS}ms`);
-      }
-    }, JOB_TIMEOUT_MS);
-
-    try {
-      // For apply-filters jobs, stash the payload in chrome.storage.local
-      // BEFORE navigating. The content script reads it on load and runs the
-      // filter-apply flow instead of the scrape flow.
-      if (job.kind === "apply-filters") {
-        await setPendingApplyFilters({
-          jobId: job.id,
-          url: job.url,
-          payloadJson: job.payload ?? "",
-          writtenAt: Date.now(),
-        });
-        console.log(`[crawler] stash apply-filters ${job.id.slice(0, 8)} → ${job.url}`);
-      }
-      console.log(`[crawler] navigating managed tab → ${job.url}`);
-      await ensureManagedTab(job.url);
-    } catch (err) {
-      completeActive("fail", 0, "navigation_error", (err as Error).message);
-    }
-  });
+export async function handleScriptFail(
+  sender: chrome.runtime.MessageSender,
+  reason: ScrapeFailReason,
+  error: string | undefined,
+): Promise<void> {
+  if (sender.tab?.id !== managedTabId) return;
+  console.warn(`[crawler] content script reported fail: ${reason} ${error ?? ""}`);
+  const settings = await getSettings();
+  await reportFail(settings.endpoint, reason, error);
 }
 
 async function tick(): Promise<void> {
@@ -186,31 +159,88 @@ async function tick(): Promise<void> {
 
   const settings = await getSettings();
   if (!settings.enabled) {
-    schedulePoll(POLL_IDLE_MS);
+    schedulePoll(POLL_INTERVAL_MS);
     return;
   }
 
-  const next: CrawlNextResponse | null = await fetchNext(settings.endpoint);
-  if (!next) {
-    schedulePoll(POLL_IDLE_MS);
+  const session = await fetchCurrent(settings.endpoint);
+  if (!session) {
+    if (lastReportedStatus !== "absent") {
+      console.log("[crawler] session endpoint unreachable; will retry");
+      lastReportedStatus = "absent";
+    }
+    schedulePoll(POLL_INTERVAL_MS);
     return;
   }
 
-  if (next.paused) {
-    await patchStatus({ lastError: `paused: ${next.pauseReason ?? ""}` });
-    schedulePoll(POLL_IDLE_MS);
-    return;
+  // New session detected — reset state and drop any prior managed
+  // tab. Each scrape session opens its own fresh tab; reusing tabs
+  // across sessions caused too many edge cases (stale state, Apollo
+  // cache corruption, wrong-window confusion).
+  if (session.startedAt && session.startedAt !== lastSeenStartedAt) {
+    if (lastSeenStartedAt !== null) {
+      console.log(`[crawler] new session detected (${session.startedAt})`);
+    }
+    lastSeenStartedAt = session.startedAt;
+    sessionExternalIds.clear();
+    completionInFlight = false;
+    // Close any old tab so we don't leave stale ones lying around.
+    if (managedTabId !== null) {
+      const stale = managedTabId;
+      managedTabId = null;
+      await persistTabId(null);
+      try {
+        await chrome.tabs.remove(stale);
+        console.log(`[crawler] closed previous managed tab ${stale}`);
+      } catch {
+        /* tab already gone */
+      }
+    }
   }
 
-  if (!next.job) {
-    schedulePoll(POLL_IDLE_MS);
-    return;
+  if (session.status !== lastReportedStatus) {
+    console.log(`[crawler] session status: ${lastReportedStatus} → ${session.status}`);
+    lastReportedStatus = session.status;
+    await patchStatus({
+      lastError:
+        session.status === "failed"
+          ? `${session.failReason ?? "unknown"}${session.errorMessage ? `: ${session.errorMessage}` : ""}`
+          : null,
+    });
   }
 
-  await runJob(next.job);
+  switch (session.status) {
+    case "running":
+      try {
+        await ensureManagedTab(FEED_URL);
+      } catch (err) {
+        console.error("[crawler] failed to open managed tab:", err);
+        await postCancel(settings.endpoint, "navigation_error", (err as Error).message);
+      }
+      break;
+    case "canceled":
+    case "done":
+    case "failed":
+      // Leave the managed tab open on terminal transitions so the user
+      // can still read the content script's console logs after the CLI
+      // exits. Releasing the tab from this side just clears our local
+      // reference; ensureManagedTab on the next session will reuse it
+      // (same URL → reload) or open a fresh one.
+      if (managedTabId !== null) {
+        console.log(
+          `[crawler] terminal status (${session.status}); releasing managed tab (kept open for log review)`,
+        );
+        managedTabId = null;
+        await persistTabId(null);
+      }
+      break;
+    case "idle":
+      // Nothing to do. If a tab is open from a prior session, leave it —
+      // the user might still be reading it.
+      break;
+  }
 
-  // Throttle between jobs to avoid burst patterns.
-  schedulePoll(jitter(next.throttleMinMs, next.throttleMaxMs));
+  schedulePoll(POLL_INTERVAL_MS);
 }
 
 function schedulePoll(delayMs: number): void {
@@ -221,7 +251,7 @@ function schedulePoll(delayMs: number): void {
 export function startCrawler(): void {
   if (running) return;
   running = true;
-  schedulePoll(0);
+  void loadPersistedTabId().then(() => schedulePoll(0));
   console.log("[crawler] started");
 }
 
@@ -232,17 +262,14 @@ export function stopCrawler(): void {
   console.log("[crawler] stopped");
 }
 
-export function crawlerStatus(): { running: boolean; managedTabId: number | null; activeJobId: string | null } {
+export function crawlerStatus(): {
+  running: boolean;
+  managedTabId: number | null;
+  lastStatus: string | null;
+} {
   return {
     running,
     managedTabId,
-    activeJobId: active?.job.id ?? null,
+    lastStatus: lastReportedStatus,
   };
-}
-
-/// Used by content scripts to ask "am I being driven by the crawler?". Returns
-/// true when the calling tab is the managed tab AND a job is in flight.
-export function isManagedTab(tabId: number | undefined): boolean {
-  if (tabId === undefined) return false;
-  return managedTabId !== null && tabId === managedTabId && active !== null;
 }

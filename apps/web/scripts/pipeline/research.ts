@@ -12,39 +12,63 @@ import { prisma } from "@/lib/db";
 import { runClaude, extractJson } from "@/lib/claude";
 import { clamp, computeScore } from "@/lib/scoring";
 
-const SYSTEM = `You are a SaaS market-research analyst evaluating niche opportunities for a
-SOLO developer aiming for ~$15k/mo profit with favorable CAC/LTV. You will
-receive a cluster of related pain-point signals mined from public sources.
+const SYSTEM = `You are a market-research analyst evaluating whether a cluster of pain
+points from a B-stock and online-reseller community could become a feature
+for **bstockbuddy.com** (working name: **Reseller Buddy**), a SaaS that
+helps resellers research auction listings, source inventory, and manage
+what they buy. The product is currently bstock-specific but is considering
+a broader rebrand to serve any auction-marketplace reseller (Whatnot,
+Liquidation.com, GovDeals, public-storage auctions, eBay sourcing).
 
-Your job: decide if this is a real, solo-feasible opportunity and score it.
+You receive a cluster of related signals mined from a private reseller
+community. Decide if this cluster represents a feature worth building, and
+score it.
 
 Scoring rubric (every score is 0-10, integers or one decimal):
 
-- soloDevScore: how feasible is this for ONE person to build, ship, and support?
-  10 = weekend MVP, obvious stack. 0 = needs a team, regulated, network-effects.
+- soloDevScore: how feasible is this for ONE founder (the user) to build,
+  ship, and support inside an existing reseller-research SaaS?
+  10 = obvious next-page or background job in their existing stack.
+  0 = needs a team, regulated data, hardware, or network-effects to work.
 
-- demandScore: how much real, active demand does the cluster show?
-  10 = multiple independent users explicitly asking for exactly this, recent.
-  0 = one vague post, no willingness-to-pay signal.
+- demandScore: signal density × reseller intensity.
+  10 = many independent resellers asking for exactly this, recent, with
+  emotional charge or repeat mentions across threads. 0 = single tangential
+  mention.
 
-- monetizationScore: is willingness-to-pay clear?
-  10 = users explicitly mention paying / currently paying $X/mo for a worse
-  alternative. 0 = free-tool-seekers with no revenue signal.
+- monetizationScore: would resellers pay for this feature? Look for current
+  spend on tools (Vendoo, Sellbrite, ListPerfectly, Sortly, BrickSeek,
+  AuctionInc, etc.), time costs, lost margin, sourcing-fees-for-info, or
+  unwillingness expressed about other tools. 10 = users name $/mo they're
+  already paying or hours/week being burned. 0 = free-tool-seekers only.
 
-- competitionScore: how crowded is this space?
-  10 = dozens of well-funded incumbents, saturated. 0 = nobody serves this niche.
-  (This is a penalty in the final score, so higher = worse.)
+- competitionScore: how crowded is this in the reseller-tooling space?
+  10 = several established reseller tools already do this well.
+  0 = nobody serves this niche. (Penalty in the final score: higher = worse.)
 
-- estMrrCeiling: integer dollars/month this could plausibly reach for a solo
-  dev in 18 months. Be realistic. Most niches are <$30k. Say 0 if unsure.
+- bstockSpecificity: how tightly does this cluster fit B-stock pallet
+  workflows specifically?
+  10 = bstock-only (e.g. parsing bstock manifest CSVs, unique-bid logic,
+  reading marketplace category filters). 0 = applies to any reseller
+  regardless of sourcing channel (e.g. listing across multiple platforms,
+  inventory location tracking). 5 = relevant to several auction marketplaces
+  including bstock. This score is recorded but does NOT penalize the overall
+  rank — it informs the rebrand decision.
 
-- estCacBand: "low" (organic/SEO can carry it), "medium" (needs some paid
-  acquisition), or "high" (requires heavy sales motion). null if unsure.
+- estMrrCeiling: integer dollars/month the *whole product* could plausibly
+  reach if it shipped this feature well. Reseller SaaS typically tops out
+  at $50k-$300k/mo. Say 0 if unsure.
+
+- estCacBand: "low" (community + organic SEO can carry it), "medium"
+  (needs paid YouTube/TikTok or partnerships), "high" (heavy sales motion).
 
 Process:
-1. Skim the signals below — identify the core underlying problem.
-2. Use WebSearch to check: "top [niche] tools", "[problem] software",
-   and look for existing solutions + pricing. 1-3 searches max.
+1. Skim the signals below — identify the core underlying problem and which
+   marketplaces it applies to.
+2. Use WebSearch to check competition and pricing. Try queries like
+   "<feature> reseller tool", "vendoo alternative <feature>",
+   "bstock <pain>", "<marketplace> reseller software".
+   1-3 searches max.
 3. Optionally WebFetch one pricing page if it clarifies willingness-to-pay.
 4. Emit the JSON scorecard.
 
@@ -53,14 +77,15 @@ Output: a single JSON code block, nothing else:
 {
   "title": "short <=80 char name for this opportunity",
   "oneLiner": "one sentence description",
-  "niche": "short tag like 'etsy-sellers' or 'solo-lawyers'",
+  "niche": "short tag like 'bstock-pallet-research' or 'multi-platform-listing'",
   "soloDevScore": 0.0,
   "demandScore": 0.0,
   "monetizationScore": 0.0,
   "competitionScore": 0.0,
+  "bstockSpecificity": 0.0,
   "estMrrCeiling": 0,
   "estCacBand": "low" | "medium" | "high" | null,
-  "notes": "2-5 short paragraphs in markdown: the problem, target user, what would you actually build, the strongest and weakest signals, top 2-3 existing competitors with pricing if known, and a honest verdict (ship / investigate / pass)."
+  "notes": "2-5 short paragraphs in markdown: the problem, who in the community is voicing it (post authors / commenters), what you would actually build, the strongest and weakest signals, top 2-3 existing competitors with pricing if known, and a one-line verdict at the end of the form: 'verdict: build into bstockbuddy' or 'verdict: build into broader Reseller Buddy' or 'verdict: pass'."
 }
 \`\`\`
 `;
@@ -73,6 +98,7 @@ const ResearchSchema = z.object({
   demandScore: z.number(),
   monetizationScore: z.number(),
   competitionScore: z.number(),
+  bstockSpecificity: z.number().default(0),
   estMrrCeiling: z.number().int().nullable().optional(),
   estCacBand: z.enum(["low", "medium", "high"]).nullable().optional(),
   notes: z.string(),
@@ -154,6 +180,7 @@ async function run() {
           demandScore: clamp(parsed.demandScore),
           monetizationScore: clamp(parsed.monetizationScore),
           competitionScore: clamp(parsed.competitionScore),
+          bstockSpecificity: clamp(parsed.bstockSpecificity),
           estMrrCeiling: parsed.estMrrCeiling ?? null,
           estCacBand: parsed.estCacBand ?? null,
           notes: parsed.notes,

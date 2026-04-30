@@ -1,25 +1,13 @@
 import { getSettings, getStatus } from "@/lib/storage";
-import { z } from "zod";
+import { ScrapeSessionSchema, type ScrapeSession } from "@research-bot/shared";
 
-const StatusSchema = z.object({
-  paused: z.boolean(),
-  pauseReason: z.string().nullable(),
-  throttleMinMs: z.number(),
-  throttleMaxMs: z.number(),
-  counts: z.object({
-    pending: z.number(),
-    running: z.number(),
-    done: z.number(),
-    failed: z.number(),
-  }),
-});
-
-async function fetchCrawlStatus(endpoint: string) {
+async function fetchSession(endpoint: string): Promise<ScrapeSession | null> {
   try {
     const origin = new URL(endpoint).origin;
-    const res = await fetch(`${origin}/api/crawl/status`);
+    const res = await fetch(`${origin}/api/scrape/current`);
     if (!res.ok) return null;
-    const parsed = StatusSchema.safeParse(await res.json());
+    const body = (await res.json()) as { session?: unknown };
+    const parsed = ScrapeSessionSchema.safeParse(body.session);
     return parsed.success ? parsed.data : null;
   } catch {
     return null;
@@ -28,44 +16,46 @@ async function fetchCrawlStatus(endpoint: string) {
 
 async function render(): Promise<void> {
   const [settings, status] = await Promise.all([getSettings(), getStatus()]);
-  const crawl = await fetchCrawlStatus(settings.endpoint);
+  const session = await fetchSession(settings.endpoint);
 
   $("captured").textContent = String(status.capturedThisSession);
   $("flushed").textContent = status.lastFlushAt
     ? new Date(status.lastFlushAt).toLocaleTimeString()
     : "never";
 
-  if (!crawl) {
-    $("crawl-state").textContent = "disconnected";
-    $("crawl-pending").textContent = "—";
-    $("crawl-tally").textContent = "—";
+  if (!session) {
+    $("scrape-state").textContent = "disconnected";
+    $("scrape-since").textContent = "—";
+    $("scrape-heartbeat").textContent = "—";
   } else {
-    const state = crawl.paused
-      ? `paused${crawl.pauseReason ? ` (${crawl.pauseReason})` : ""}`
-      : crawl.counts.running > 0
-        ? "running"
-        : crawl.counts.pending > 0
-          ? "queued"
-          : "idle";
-    $("crawl-state").textContent = state;
-    $("crawl-pending").textContent = String(crawl.counts.pending + crawl.counts.running);
-    $("crawl-tally").textContent = `${crawl.counts.done} / ${crawl.counts.failed}`;
+    $("scrape-state").textContent = session.status;
+    $("scrape-since").textContent = session.startedAt
+      ? `${secondsAgo(session.startedAt)}s ago`
+      : "—";
+    $("scrape-heartbeat").textContent = session.lastHeartbeat
+      ? `${secondsAgo(session.lastHeartbeat)}s ago`
+      : "—";
   }
 
   const dot = $("status-dot");
   dot.classList.remove("on", "off", "err");
-  if ((crawl?.paused) || status.lastError) dot.classList.add("err");
-  else if (settings.enabled && crawl !== null) dot.classList.add("on");
+  if (session?.status === "failed" || status.lastError) dot.classList.add("err");
+  else if (settings.enabled && session?.status === "running") dot.classList.add("on");
   else dot.classList.add("off");
 
   const errBox = $("error");
-  if (status.lastError || crawl?.paused) {
+  if (status.lastError || session?.status === "failed") {
     errBox.hidden = false;
-    $("error-text").textContent = status.lastError ??
-      `crawler is paused (${crawl?.pauseReason ?? "unknown reason"})`;
+    $("error-text").textContent =
+      status.lastError ??
+      `${session?.failReason ?? "unknown"}${session?.errorMessage ? `: ${session.errorMessage}` : ""}`;
   } else {
     errBox.hidden = true;
   }
+}
+
+function secondsAgo(iso: string): number {
+  return Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
 }
 
 function $(id: string): HTMLElement {
@@ -78,5 +68,5 @@ document.addEventListener("DOMContentLoaded", () => {
   void render();
   $("open-options").addEventListener("click", () => chrome.runtime.openOptionsPage());
   chrome.storage.onChanged.addListener(() => void render());
-  setInterval(() => void render(), 4000);
+  setInterval(() => void render(), 2000);
 });

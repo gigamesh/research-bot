@@ -11,16 +11,13 @@
     "db:migrate": "pnpm --filter @research-bot/web run db:migrate",
     "db:studio": "pnpm --filter @research-bot/web run db:studio",
     "db:seed": "pnpm --filter @research-bot/web run db:seed",
-    "ingest:hn": "pnpm --filter @research-bot/web run ingest:hn",
-    "ingest:reddit": "pnpm --filter @research-bot/web run ingest:reddit",
-    "ingest:ph": "pnpm --filter @research-bot/web run ingest:ph",
     "pipeline:signals": "pnpm --filter @research-bot/web run pipeline:signals",
     "pipeline:embed": "pnpm --filter @research-bot/web run pipeline:embed",
     "pipeline:cluster": "pnpm --filter @research-bot/web run pipeline:cluster",
     "pipeline:research": "pnpm --filter @research-bot/web run pipeline:research",
     "pipeline:all": "pnpm --filter @research-bot/web run pipeline:all",
     "inspect:clusters": "pnpm --filter @research-bot/web run inspect:clusters",
-    "crawl": "pnpm --filter @research-bot/web exec tsx scripts/crawl.ts"
+    "scrape": "pnpm --filter @research-bot/web exec tsx scripts/scrape.ts"
   },
   "devDependencies": {
     "turbo": "^2.5.10"

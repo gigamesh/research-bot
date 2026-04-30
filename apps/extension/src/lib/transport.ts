@@ -1,14 +1,18 @@
-import type { IngestPayload, IngestResponse } from "@research-bot/shared";
+type IngestResponse = {
+  created: number;
+  updated: number;
+  skipped: number;
+};
 
 export type PostResult =
   | { ok: true; response: IngestResponse }
   | { ok: false; status: number; message: string; retriable: boolean };
 
-/// POST a batch of Upwork items to the local web app's ingest endpoint.
+/// POST a batch payload to the local web app's ingest endpoint.
 /// 5xx and network errors are retriable; 4xx errors are not.
-export async function postBatch(
+export async function postBatch<T>(
   endpoint: string,
-  payload: IngestPayload,
+  payload: T,
 ): Promise<PostResult> {
   try {
     const res = await fetch(endpoint, {

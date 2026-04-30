@@ -49,14 +49,40 @@ export default async function Home({
     orderBy: { niche: "asc" },
   });
 
+  const trending = await loadTrending();
+
   const statusOptions = ["candidate", "promoted", "snoozed", "dismissed"];
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-baseline justify-between mb-6">
-        <h1 className="text-2xl font-semibold">Opportunities</h1>
+        <h1 className="text-2xl font-semibold">
+          Reseller Buddy — Feature Opportunities
+        </h1>
         <span className="text-sm text-zinc-500">{opps.length} result{opps.length === 1 ? "" : "s"}</span>
       </div>
+
+      {trending.length > 0 ? (
+        <section className="mb-6">
+          <h2 className="text-xs uppercase tracking-wide text-zinc-500 mb-2">
+            Trending this week
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {trending.map((t) => (
+              <Link
+                key={t.id}
+                href={`/opportunities/${t.id}`}
+                className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/50 max-w-xs"
+              >
+                <div className="font-medium truncate">{t.title}</div>
+                <div className="text-xs text-zinc-500">
+                  +{t.recentEvidence} new signal{t.recentEvidence === 1 ? "" : "s"} · score {t.score.toFixed(1)}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <form className="flex flex-wrap gap-3 mb-6 text-sm" action="/">
         <div className="flex items-center gap-2">
@@ -120,7 +146,7 @@ export default async function Home({
         <div className="border border-dashed border-zinc-300 dark:border-zinc-700 rounded p-8 text-center text-zinc-500">
           <p className="mb-2">No opportunities yet.</p>
           <p className="text-sm">
-            Run <code className="font-mono bg-zinc-200 dark:bg-zinc-800 px-1 rounded">pnpm ingest:hn</code>,{" "}
+            Run <code className="font-mono bg-zinc-200 dark:bg-zinc-800 px-1 rounded">pnpm scrape feed</code>,{" "}
             then <code className="font-mono bg-zinc-200 dark:bg-zinc-800 px-1 rounded">pnpm pipeline:all</code>.
           </p>
         </div>
@@ -154,6 +180,12 @@ export default async function Home({
                     <span className="text-zinc-500">
                       D{opp.demandScore.toFixed(0)} · M{opp.monetizationScore.toFixed(0)} · S{opp.soloDevScore.toFixed(0)} · C{opp.competitionScore.toFixed(0)}
                     </span>
+                    <span
+                      className="font-mono px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200"
+                      title="bstockSpecificity: 10 = bstock-only, 0 = applies to any reseller"
+                    >
+                      B{opp.bstockSpecificity.toFixed(0)}
+                    </span>
                     {opp.estMrrCeiling ? (
                       <span className="text-zinc-500">~${opp.estMrrCeiling.toLocaleString()}/mo ceiling</span>
                     ) : null}
@@ -172,4 +204,33 @@ export default async function Home({
       )}
     </div>
   );
+}
+
+/// Top opportunities by *recent evidence* (Evidence rows created in the last
+/// 7 days). Captures clusters that are seeing ongoing community discussion,
+/// regardless of overall score. Includes researched + unresearched.
+async function loadTrending(): Promise<
+  { id: string; title: string; score: number; recentEvidence: number }[]
+> {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const grouped = await prisma.evidence.groupBy({
+    by: ["opportunityId"],
+    where: { createdAt: { gte: sevenDaysAgo } },
+    _count: { _all: true },
+    orderBy: { _count: { opportunityId: "desc" } },
+    take: 5,
+  });
+  if (grouped.length === 0) return [];
+  const opps = await prisma.opportunity.findMany({
+    where: { id: { in: grouped.map((g) => g.opportunityId) } },
+    select: { id: true, title: true, score: true },
+  });
+  const byId = new Map(opps.map((o) => [o.id, o]));
+  return grouped
+    .map((g) => {
+      const o = byId.get(g.opportunityId);
+      if (!o) return null;
+      return { ...o, recentEvidence: g._count._all };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
 }

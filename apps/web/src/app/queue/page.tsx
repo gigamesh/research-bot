@@ -37,7 +37,7 @@ export default async function QueuePage() {
         <div className="border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-800">
           {sources.length === 0 ? (
             <div className="px-4 py-3 text-zinc-500">
-              No sources yet — run an ingest script.
+              No sources yet — run <code className="font-mono bg-zinc-100 dark:bg-zinc-800 px-1 rounded">pnpm scrape feed</code>.
             </div>
           ) : (
             sources.map((s) => (
@@ -72,9 +72,8 @@ export default async function QueuePage() {
       <section>
         <h2 className="text-sm uppercase tracking-wide text-zinc-500 mb-2">next commands</h2>
         <pre className="bg-zinc-900 text-zinc-100 rounded p-4 text-sm overflow-x-auto">
-{`pnpm ingest:hn --limit 50
-pnpm ingest:reddit --limit 50         # needs REDDIT_* in .env
-pnpm ingest:ph --limit 30             # needs PRODUCTHUNT_TOKEN in .env
+{`pnpm scrape feed                      # scroll the kajabi community + harvest threads
+pnpm scrape status --watch            # follow the queue live
 
 pnpm pipeline:signals --limit 20
 pnpm pipeline:embed

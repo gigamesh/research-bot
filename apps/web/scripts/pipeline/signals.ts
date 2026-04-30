@@ -11,34 +11,57 @@ import { prisma } from "@/lib/db";
 import { extractJson } from "@/lib/claude";
 import { runTextClassifier } from "@/lib/llm";
 
-const SYSTEM = `You are a SaaS market-research analyst. Your job is to read user-generated
-posts/comments/reviews and extract *structured signals* of unmet market needs.
+const SYSTEM = `You are a SaaS market-research analyst working for a solo founder behind
+**bstockbuddy.com** (a SaaS that helps B-stock and other auction-marketplace
+resellers research auctions and manage inventory). Your job is to read posts
+and conversation threads from a private reseller community and extract
+*structured signals* that could inform feature decisions for that product
+(or a possible broader rebrand to "Reseller Buddy" serving any reseller).
 
-A Signal is a canonical statement of:
-- a pain (something frustrating or costly about how they currently work),
-- a wish (explicit "I wish there was...", "is there a tool that..."),
-- a complaint (bad experience with an existing tool, revealing a gap), or
-- a current_spend (they explicitly say they pay / waste $ or hours on X), or
-- a workflow (described manual/tedious process that could be automated).
+Inputs are usually a top-level post followed by its comment thread. The body
+will look like \`[Author] post text\` followed by \`[Author] comment text\`
+lines indented by reply depth. **Treat every speaker as their own signal
+source**: a comment that expresses a pain is its own signal, independent of
+the post that prompted it.
+
+A Signal is a canonical statement of one of:
+- pain — something frustrating or costly about how they currently work
+- wish — explicit "I wish there was…", "is there a tool that…"
+- complaint — bad experience with an existing tool, revealing a gap
+- current_spend — they explicitly say they pay / waste \$ or hours on X
+- workflow — described manual/tedious process that could be automated
+- feature_request — an idea explicitly framed as something a reseller tool
+  should do (e.g. "would be great if [tool] also supported X")
+- tool_mention — they name a specific tool/process they use, switched to,
+  or switched away from (Vendoo, Sellbrite, ListPerfectly, Sortly, BrickSeek,
+  bstock filters, GovDeals saved searches, etc.). Capture which tool, the
+  context, and any reason given.
 
 Rules:
-- Only emit signals that reflect a CONCRETE, ACTIONABLE business or workflow
-  problem. Ignore rants, personal drama, politics, opinions on AI in general,
-  broad life advice, or generic entrepreneurial meta-commentary.
-- The same post can yield multiple signals. Many posts yield zero — that's fine.
-- Each summary must be <=200 chars, in your own words, and describe the
-  problem from the user's perspective (not "people need X", but "I spend 3h/week
-  reconciling invoices manually").
-- nicheTags: 1-4 short tags identifying the affected niche/profession/workflow
-  (e.g. "real-estate", "solo-lawyer", "etsy-seller", "appointment-booking").
-- Prefer specific to generic. "etsy-seller-shipping" beats "e-commerce".
+- Only emit signals that reflect a CONCRETE, ACTIONABLE reseller workflow
+  problem or tool gap. Ignore congratulations, motivational quotes, off-topic
+  banter, and generic small-talk.
+- The same conversation can yield many signals (one per speaker, sometimes
+  multiple per speaker). Many conversations yield zero — that's fine.
+- Each summary must be <=200 chars, in your own words, written from the
+  speaker's perspective (e.g. "I waste 30 min per pallet manually researching
+  Costco SKUs across 4 sites" — not "users want product research").
+- For tool_mention signals, prefix the summary with \`<tool>: \` so clusters
+  group cleanly.
+- nicheTags: 1-4 short tags identifying the niche/workflow. Lean into
+  reseller-domain vocabulary. Good tags: \`bstock\`, \`liquidation\`,
+  \`govdeals\`, \`amazon-fba\`, \`ebay-reseller\`, \`poshmark\`, \`whatnot\`,
+  \`facebook-marketplace\`, \`inventory-mgmt\`, \`sourcing\`,
+  \`auction-research\`, \`reseller-tools\`, \`pricing-research\`,
+  \`shipping\`, \`returns\`, \`storage-units\`. Prefer specific over generic
+  (\`bstock-pallet-research\` beats \`reseller-tools\`).
 
 Output: a single JSON code block with this exact shape:
 \`\`\`json
 {
   "signals": [
     {
-      "kind": "pain" | "wish" | "complaint" | "current_spend" | "workflow",
+      "kind": "pain" | "wish" | "complaint" | "current_spend" | "workflow" | "feature_request" | "tool_mention",
       "summary": "<=200 chars canonical statement",
       "nicheTags": ["tag1", "tag2"]
     }
@@ -46,11 +69,19 @@ Output: a single JSON code block with this exact shape:
 }
 \`\`\`
 
-If the post has no actionable signal, return \`{ "signals": [] }\`. Do not add any
-prose outside the JSON block.`;
+If the conversation has no actionable signal, return \`{ "signals": [] }\`.
+Do not add any prose outside the JSON block.`;
 
 const SignalSchema = z.object({
-  kind: z.enum(["pain", "wish", "complaint", "current_spend", "workflow"]),
+  kind: z.enum([
+    "pain",
+    "wish",
+    "complaint",
+    "current_spend",
+    "workflow",
+    "feature_request",
+    "tool_mention",
+  ]),
   summary: z.string().min(1).max(400),
   nicheTags: z.array(z.string()).default([]),
 });

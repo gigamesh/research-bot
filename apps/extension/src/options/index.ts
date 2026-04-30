@@ -8,20 +8,12 @@ function readForm(): Partial<Settings> {
   return {
     endpoint: String(fd.get("endpoint") ?? ""),
     enabled: fd.get("enabled") === "on",
-    capture: {
-      "job-search": fd.get("capture-job-search") === "on",
-      "job-detail": fd.get("capture-job-detail") === "on",
-      "category-feed": fd.get("capture-category-feed") === "on",
-    },
   };
 }
 
 function paint(s: Settings): void {
   (form.elements.namedItem("endpoint") as HTMLInputElement).value = s.endpoint;
   (form.elements.namedItem("enabled") as HTMLInputElement).checked = s.enabled;
-  (form.elements.namedItem("capture-job-search") as HTMLInputElement).checked = s.capture["job-search"];
-  (form.elements.namedItem("capture-job-detail") as HTMLInputElement).checked = s.capture["job-detail"];
-  (form.elements.namedItem("capture-category-feed") as HTMLInputElement).checked = s.capture["category-feed"];
 }
 
 void getSettings().then(paint);
